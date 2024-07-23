@@ -16,13 +16,15 @@ import com.revrobotics.CANSparkLowLevel;
  */
 public final class Constants {
   public static class OperatorConstants {
+    public static final int kDriverControllerPort = 0;
   }
 
   public static class ShooterConstants {
     public static final int TOP_SHOOTER_ROTATION_SPEED = 1;
     public static final int BOTTOM_SHOOTER_ROTATION_SPEED = 1;
 
-    public static final int SHOOTER_MOTOR_ID = 0;
+    public static final int TOP_SHOOTER_MOTOR_ID = 0;
+    public static final int BOTTOM_SHOOTER_MOTOR_ID = 0;
   }
 
   public static class IntakeConstants {
@@ -32,13 +34,11 @@ public final class Constants {
   }
 
   public static class DriveConstants {
-    public static final int kDriverControllerPort = 0;
-
     public static final CANSparkLowLevel.MotorType DRIVE_MOTOR_TYPE = CANSparkLowLevel.MotorType.kBrushless;
 
-    public static final int FRONT_LEFT_MOTOR_ID = 0;
-    public static final int FRONT_RIGHT_MOTOR_ID = 0;
-    public static final int REAR_LEFT_MOTOR_ID = 0;
-    public static final int REAR_RIGHT_MOTOR_ID = 0;
+    public static final int FRONT_LEFT_MOTOR_ID = 4;
+    public static final int FRONT_RIGHT_MOTOR_ID = 31;
+    public static final int REAR_LEFT_MOTOR_ID = 57;
+    public static final int REAR_RIGHT_MOTOR_ID = 11;
   }
 }

@@ -10,8 +10,11 @@ import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import edu.wpi.first.wpilibj.MotorSafety;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,17 +26,28 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final MecanumDriveSubsystem m_driveSubsystem = new MecanumDriveSubsystem();
-  private final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
-  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  // private final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
+  // private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
-      new CommandXboxController(DriveConstants.kDriverControllerPort);
+      new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+
+    // MotorSafety ms = new MotorSafety();
+    // ms.setSafetyEnabled(false);
+
+    m_driveSubsystem.setDefaultCommand(Commands.run(() -> m_driveSubsystem.driveWithSpeed(
+      m_driverController.getLeftY(),
+      m_driverController.getLeftX(),
+      m_driverController.getRightX(),
+      m_driveSubsystem.getSpeedModifier()
+    ), m_driveSubsystem));
   }
 
   /**
@@ -47,12 +61,20 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // new Trigger(() -> Math.abs(m_driverController.getLeftX())>0.1 && Math.abs(m_driverController.getLeftY())>0.1 && Math.abs(m_driverController.getRightY())>0.1)
+    //     .whileTrue(Commands.run(() -> m_driveSubsystem.driveWithSpeed(
+    //       m_driverController.getLeftY(),
+    //       -m_driverController.getLeftX(),
+    //       m_driverController.getRightY(),
+    //       m_driveSubsystem.getSpeedModifier()
+    //     )));
+
+    m_driverController.leftBumper()
+      .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.decreaseSpeed()));
+    m_driverController.rightBumper()
+      .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.increaseSpeed()));
+
   }
 
   /**

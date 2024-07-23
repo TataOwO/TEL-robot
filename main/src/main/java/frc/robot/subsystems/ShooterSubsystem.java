@@ -18,8 +18,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
 
 public class ShooterSubsystem extends SubsystemBase {
-  private final TalonFX shooter;
-  private final TalonFXConfiguration configs = new TalonFXConfiguration();
+  private final TalonFX m_topShooter;
+  private final TalonFX m_botShooter;
+  private final TalonFXConfiguration topShooterConfigs = new TalonFXConfiguration();
 
   private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
   private final NeutralOut m_brake = new NeutralOut();
@@ -27,53 +28,54 @@ public class ShooterSubsystem extends SubsystemBase {
   private StatusCode status = StatusCode.StatusCodeNotInitialized;
 
   public ShooterSubsystem() {
-    configs.Slot0.kP = 0.1;
-    configs.Slot0.kI = 0.01;
-    configs.Slot0.kD = 0;
+    topShooterConfigs.Slot0.kP = 0.1;
+    topShooterConfigs.Slot0.kI = 0.01;
+    topShooterConfigs.Slot0.kD = 0;
 
-    shooter = new TalonFX(ShooterConstants.SHOOTER_MOTOR_ID);
+    m_topShooter = new TalonFX(ShooterConstants.TOP_SHOOTER_MOTOR_ID);
+    m_botShooter = new TalonFX(ShooterConstants.BOTTOM_SHOOTER_MOTOR_ID);
 
     for (int i=0; i<5; i++) {
-      status = shooter.getConfigurator().apply(configs);
+      status = m_topShooter.getConfigurator().apply(topShooterConfigs);
       if (status.isOK()) break;
     }
-    if (!status.isOK()) System.out.println("An error occured at shooter subsys: " + status.toString());
-  }
-
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return this.runOnce(
-        () -> {
-          
-        });
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
+    if (!status.isOK()) System.out.println("An error occured at shooter subsystem: " + status.toString());
   }
 
   /**
    * 
-   * @param speed rotation per minutes, but not precise
+   * @param RPS rotation per second
    */
-  private void shoot(double speed) {
-    shooter.setControl(m_velocityVoltage.withVelocity(speed));
+  public Command shootCommand(double RPS) {
+    return this.runOnce(shootRunnable(RPS));
+  }
+
+  public Command stopCommand() {
+    return this.runOnce(stopRunnable());
+  }
+
+  /**
+   * 
+   * @param RPS rotation per second
+   */
+  private Runnable shootRunnable(double RPS) {
+    return () -> shoot(RPS);
+  }
+
+  private Runnable stopRunnable() {
+    return () -> stop();
+  }
+
+  /**
+   * 
+   * @param RPS rotation per second
+   */
+  private void shoot(double RPS) {
+    m_topShooter.setControl(m_velocityVoltage.withVelocity(RPS));
   }
 
   private void stop() {
-    shooter.setControl(m_brake);
+    m_topShooter.setControl(m_brake);
   }
 
   @Override

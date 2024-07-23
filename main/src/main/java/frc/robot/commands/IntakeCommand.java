@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -13,7 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 /** An example command that uses an example subsystem. */
 public class IntakeCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final IntakeSubsystem m_subsystem;
+  private final IntakeSubsystem m_intakeSubsystem;
   private final Timer timer = new Timer();
 
   /**
@@ -22,7 +21,7 @@ public class IntakeCommand extends Command {
    * @param subsystem The subsystem used by this command.
    */
   public IntakeCommand(IntakeSubsystem subsystem) {
-    m_subsystem = subsystem;
+    m_intakeSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -35,7 +34,8 @@ public class IntakeCommand extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+  }
 
   // Called once the command ends or is interrupted.
   @Override
