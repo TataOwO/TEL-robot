@@ -27,10 +27,10 @@ public final class Constants {
     public static final int BOTTOM_SHOOTER_MOTOR_ID = 0;
   }
 
-  public static class IntakeConstants {
-    public static final int INTAKE_ROTATION_SPEED = 1;
+  public static class LoaderConstants {
+    public static final int LOADER_ROTATION_SPEED = 1;
 
-    public static final int INTAKE_MOTOR_ID = 0;
+    public static final int LOADER_MOTOR_ID = 0;
   }
 
   public static class DriveConstants {
@@ -41,7 +41,9 @@ public final class Constants {
     public static final int REAR_LEFT_MOTOR_ID = 57;
     public static final int REAR_RIGHT_MOTOR_ID = 11;
 
-    public static final double wheelDistance_x = 0; // x+ -> FRONT
-    public static final double wheelDistance_y = 0; // y+ -> LEFT
+    public static final double WHEEL_DISTANCE_X = 0; // x+ -> FRONT
+    public static final double WHEEL_DISTANCE_y = 0; // y+ -> LEFT
+
+    public static final double BASE_SPEED = 100;
   }
 }

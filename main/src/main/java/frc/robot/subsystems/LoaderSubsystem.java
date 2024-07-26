@@ -14,7 +14,7 @@ import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.LoaderConstants;
 
 public class LoaderSubsystem extends SubsystemBase {
   private final TalonFX m_loader;
@@ -32,7 +32,7 @@ public class LoaderSubsystem extends SubsystemBase {
     loaderConfigs.Slot0.kI = 0.01;
     loaderConfigs.Slot0.kD = 0;
 
-    m_loader = new TalonFX(IntakeConstants.INTAKE_MOTOR_ID);
+    m_loader = new TalonFX(LoaderConstants.LOADER_MOTOR_ID);
 
     for (int i=0; i<5; i++) {
       loaderStatus = m_loader.getConfigurator().apply(loaderConfigs);
@@ -51,8 +51,8 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param RPS rotation per second
    */
-  public Command takeCommand(double RPS) {
-    return this.runOnce(takeRunnable(RPS));
+  public Command loadCommand(double RPS) {
+    return this.runOnce(loadRunnable(RPS));
   }
 
   public Command stopCommand() {
@@ -63,8 +63,8 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param RPS rotation per second
    */
-  private Runnable takeRunnable(double RPS) {
-    return () -> take(RPS);
+  private Runnable loadRunnable(double RPS) {
+    return () -> load(RPS);
   }
 
   private Runnable stopRunnable() {
@@ -75,7 +75,7 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param RPS rotation per second
    */
-  private void take(double RPS) {
+  private void load(double RPS) {
     m_loader.setControl(m_velocityVoltage.withVelocity(RPS));
   }
 
