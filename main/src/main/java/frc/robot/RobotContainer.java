@@ -42,7 +42,7 @@ public class RobotContainer {
     m_driveSubsystem.setDefaultCommand(m_driveSubsystem.run(() -> m_driveSubsystem.drive(
       m_driverController.getLeftY(),
       m_driverController.getLeftX(),
-      m_driverController.getRightX()
+      -m_driverController.getRightX()
     )));
   }
 
@@ -62,7 +62,6 @@ public class RobotContainer {
       .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.decreaseSpeed()));
     m_driverController.rightBumper()
       .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.increaseSpeed()));
-
   }
 
   /**

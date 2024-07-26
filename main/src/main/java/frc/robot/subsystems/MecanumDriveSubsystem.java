@@ -51,39 +51,37 @@ public class MecanumDriveSubsystem extends SubsystemBase {
 
     m_drive = new MecanumDrive(frontLeftMotor, rearLeftMotor, frontRightMotor, rearRightMotor);
 
-    frontLeftEncoder = frontLeftMotor.getAlternateEncoder(1);
-    frontRightEncoder = frontRightMotor.getAlternateEncoder(1);
-    rearLeftEncoder = rearLeftMotor.getAlternateEncoder(1);
-    rearRightEncoder = rearRightMotor.getAlternateEncoder(1);
-
     frontLeftPid = frontLeftMotor.getPIDController();
     frontRightPid = frontRightMotor.getPIDController();
     rearLeftPid = rearLeftMotor.getPIDController();
     rearRightPid = rearRightMotor.getPIDController();
 
-    frontLeftPid. setP(.1);
-    frontRightPid.setP(.1);
-    rearLeftPid.  setP(.1);
-    rearRightPid. setP(.1);
+    double kP = 1e-3;
+    double kI = 1e-7;
+    double kD = 1;
 
-    frontLeftPid. setI(.0);
-    frontRightPid.setI(.0);
-    rearLeftPid.  setI(.0);
-    rearRightPid. setI(.0);
+    frontLeftPid. setP(kP);
+    frontRightPid.setP(kP);
+    rearLeftPid.  setP(kP);
+    rearRightPid. setP(kP);
 
-    frontLeftPid. setD(.0);
-    frontRightPid.setD(.0);
-    rearLeftPid.  setD(.0);
-    rearRightPid. setD(.0);
+    frontLeftPid. setI(kI);
+    frontRightPid.setI(kI);
+    rearLeftPid.  setI(kI);
+    rearRightPid. setI(kI);
+
+    frontLeftPid. setD(kD);
+    frontRightPid.setD(kD);
+    rearLeftPid.  setD(kD);
+    rearRightPid. setD(kD);
   }
 
   public void drive(double xSpeed, double ySpeed, double zRotation) {
-    wheelSpeeds = MecanumDrive.driveCartesianIK(xSpeed, ySpeed, zRotation);
+    xSpeed *= this.speedModifier;
+    ySpeed *= this.speedModifier;
+    zRotation *= this.speedModifier;
 
-    frontLeftPid.setReference(wheelSpeeds.frontLeft * currentSpeed, ControlType.kVelocity);
-    frontRightPid.setReference(wheelSpeeds.frontRight * currentSpeed, ControlType.kVelocity);
-    rearLeftPid.setReference(wheelSpeeds.rearLeft * currentSpeed, ControlType.kVelocity);
-    rearRightPid.setReference(wheelSpeeds.rearRight * currentSpeed, ControlType.kVelocity);
+    m_drive.driveCartesian(xSpeed, ySpeed, zRotation);
   }
 
   public void increaseSpeed() {

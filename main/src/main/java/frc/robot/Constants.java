@@ -44,6 +44,6 @@ public final class Constants {
     public static final double WHEEL_DISTANCE_X = 0; // x+ -> FRONT
     public static final double WHEEL_DISTANCE_y = 0; // y+ -> LEFT
 
-    public static final double BASE_SPEED = 100;
+    public static final double BASE_SPEED = 1000;
   }
 }
