@@ -9,11 +9,12 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ShooterConstants;
 
 import frc.robot.Constants.*;
 
@@ -25,7 +26,9 @@ public class ShooterSubsystem extends SubsystemBase {
   private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
   private final NeutralOut m_brake = new NeutralOut();
 
-  private StatusCode status = StatusCode.StatusCodeNotInitialized;
+  private final StatusSignal<Double> topShooterVelocity;
+
+  private StatusCode shooterStatus = StatusCode.StatusCodeNotInitialized;
 
   public ShooterSubsystem() {
     topShooterConfigs.Slot0.kP = 0.1;
@@ -36,10 +39,12 @@ public class ShooterSubsystem extends SubsystemBase {
     m_botShooter = new TalonFX(ShooterConstants.BOTTOM_SHOOTER_MOTOR_ID);
 
     for (int i=0; i<5; i++) {
-      status = m_topShooter.getConfigurator().apply(topShooterConfigs);
-      if (status.isOK()) break;
+      shooterStatus = m_topShooter.getConfigurator().apply(topShooterConfigs);
+      if (shooterStatus.isOK()) break;
     }
-    if (!status.isOK()) System.out.println("An error occured at shooter subsystem: " + status.toString());
+    if (!shooterStatus.isOK()) System.out.println("An error occured at shooter subsystem: " + shooterStatus.toString());
+
+    topShooterVelocity = m_topShooter.getVelocity();
   }
 
   /**
@@ -80,11 +85,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    topShooterVelocity.refresh();
   }
 
   @Override
   public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
+    topShooterVelocity.refresh();
   }
 }

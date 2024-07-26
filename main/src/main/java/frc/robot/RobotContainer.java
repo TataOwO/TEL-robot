@@ -28,6 +28,7 @@ public class RobotContainer {
   private final MecanumDriveSubsystem m_driveSubsystem = new MecanumDriveSubsystem();
   // private final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
   // private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  // private final LoaderSubsystem m_loaderSubsystem = new LoaderSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -38,16 +39,12 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-
-    // MotorSafety ms = new MotorSafety();
-    // ms.setSafetyEnabled(false);
-
-    m_driveSubsystem.setDefaultCommand(Commands.run(() -> m_driveSubsystem.driveWithSpeed(
+    m_driveSubsystem.setDefaultCommand(m_driveSubsystem.run(() -> m_driveSubsystem.driveWithSpeed(
       m_driverController.getLeftY(),
       m_driverController.getLeftX(),
       m_driverController.getRightX(),
       m_driveSubsystem.getSpeedModifier()
-    ), m_driveSubsystem));
+    )));
   }
 
   /**
@@ -61,14 +58,6 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-
-    // new Trigger(() -> Math.abs(m_driverController.getLeftX())>0.1 && Math.abs(m_driverController.getLeftY())>0.1 && Math.abs(m_driverController.getRightY())>0.1)
-    //     .whileTrue(Commands.run(() -> m_driveSubsystem.driveWithSpeed(
-    //       m_driverController.getLeftY(),
-    //       -m_driverController.getLeftX(),
-    //       m_driverController.getRightY(),
-    //       m_driveSubsystem.getSpeedModifier()
-    //     )));
 
     m_driverController.leftBumper()
       .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.decreaseSpeed()));

@@ -40,5 +40,8 @@ public final class Constants {
     public static final int FRONT_RIGHT_MOTOR_ID = 31;
     public static final int REAR_LEFT_MOTOR_ID = 57;
     public static final int REAR_RIGHT_MOTOR_ID = 11;
+
+    public static final double wheelDistance_x = 0; // x+ -> FRONT
+    public static final double wheelDistance_y = 0; // y+ -> LEFT
   }
 }

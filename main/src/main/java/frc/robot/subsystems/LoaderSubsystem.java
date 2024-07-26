@@ -16,35 +16,35 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
-public class IntakeSubsystem extends SubsystemBase {
-  private final TalonFX m_intake;
-  private final TalonFXConfiguration configs = new TalonFXConfiguration();
+public class LoaderSubsystem extends SubsystemBase {
+  private final TalonFX m_loader;
+  private final TalonFXConfiguration loaderConfigs = new TalonFXConfiguration();
 
   private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
-  private final NeutralOut m_brake = new NeutralOut();
+  private final NeutralOut motorBrake = new NeutralOut();
 
-  private final StatusSignal<Double> intakeVelocity; 
+  private final StatusSignal<Double> loaderVelocity; 
 
-  private StatusCode status = StatusCode.StatusCodeNotInitialized;
+  private StatusCode loaderStatus = StatusCode.StatusCodeNotInitialized;
 
-  public IntakeSubsystem() {
-    configs.Slot0.kP = 0.1;
-    configs.Slot0.kI = 0.01;
-    configs.Slot0.kD = 0;
+  public LoaderSubsystem() {
+    loaderConfigs.Slot0.kP = 0.1;
+    loaderConfigs.Slot0.kI = 0.01;
+    loaderConfigs.Slot0.kD = 0;
 
-    m_intake = new TalonFX(IntakeConstants.INTAKE_MOTOR_ID);
+    m_loader = new TalonFX(IntakeConstants.INTAKE_MOTOR_ID);
 
     for (int i=0; i<5; i++) {
-      status = m_intake.getConfigurator().apply(configs);
-      if (status.isOK()) break;
+      loaderStatus = m_loader.getConfigurator().apply(loaderConfigs);
+      if (loaderStatus.isOK()) break;
     }
-    if (!status.isOK()) System.out.println("An error occured at intake subsystem: " + status.toString());
+    if (!loaderStatus.isOK()) System.out.println("An error occured at intake subsystem: " + loaderStatus.toString());
 
-    intakeVelocity = m_intake.getVelocity();
+    loaderVelocity = m_loader.getVelocity();
   }
 
   public double getVelocity() {
-    return intakeVelocity.getValueAsDouble();
+    return loaderVelocity.getValueAsDouble();
   }
 
   /**
@@ -76,20 +76,20 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param RPS rotation per second
    */
   private void take(double RPS) {
-    m_intake.setControl(m_velocityVoltage.withVelocity(RPS));
+    m_loader.setControl(m_velocityVoltage.withVelocity(RPS));
   }
 
   private void stop() {
-    m_intake.setControl(m_brake);
+    m_loader.setControl(motorBrake);
   }
 
   @Override
   public void periodic() {
-    intakeVelocity.refresh();
+    loaderVelocity.refresh();
   }
 
   @Override
   public void simulationPeriodic() {
-    intakeVelocity.refresh();
+    loaderVelocity.refresh();
   }
 }
