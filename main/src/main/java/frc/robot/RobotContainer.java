@@ -39,11 +39,10 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    m_driveSubsystem.setDefaultCommand(m_driveSubsystem.run(() -> m_driveSubsystem.driveWithSpeed(
+    m_driveSubsystem.setDefaultCommand(m_driveSubsystem.run(() -> m_driveSubsystem.drive(
       m_driverController.getLeftY(),
       m_driverController.getLeftX(),
-      m_driverController.getRightX(),
-      m_driveSubsystem.getSpeedModifier()
+      m_driverController.getRightX()
     )));
   }
 

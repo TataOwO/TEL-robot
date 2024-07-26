@@ -7,18 +7,11 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 
-import edu.wpi.first.math.estimator.MecanumDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.MecanumDriveKinematics;
-import edu.wpi.first.math.kinematics.MecanumDriveWheelPositions;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
 
 import frc.robot.Constants.*;
 
@@ -35,14 +28,17 @@ public class MecanumDriveSubsystem extends SubsystemBase {
   private RelativeEncoder rearLeftEncoder;
   private RelativeEncoder rearRightEncoder;
 
-  private AHRS gyroAhrs;
+  private SparkPIDController frontLeftPid;
+  private SparkPIDController frontRightPid;
+  private SparkPIDController rearLeftPid;
+  private SparkPIDController rearRightPid;
 
-  private MecanumDriveKinematics kinematics;
-  private MecanumDrivePoseEstimator poseEstimator;
+  private MecanumDrive.WheelSpeeds wheelSpeeds = new MecanumDrive.WheelSpeeds(0,0,0,0);
 
   private static final CANSparkLowLevel.MotorType driveMotorType = DriveConstants.DRIVE_MOTOR_TYPE;
 
   private double speedModifier = 0.6;
+  private double currentSpeed = DriveConstants.BASE_SPEED * speedModifier;
 
   public MecanumDriveSubsystem() {
     frontLeftMotor = new CANSparkMax(DriveConstants.FRONT_LEFT_MOTOR_ID, driveMotorType);
@@ -60,63 +56,56 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     rearLeftEncoder = rearLeftMotor.getAlternateEncoder(1);
     rearRightEncoder = rearRightMotor.getAlternateEncoder(1);
 
-    gyroAhrs = new AHRS(SPI.Port.kMXP);
+    frontLeftPid = frontLeftMotor.getPIDController();
+    frontRightPid = frontRightMotor.getPIDController();
+    rearLeftPid = rearLeftMotor.getPIDController();
+    rearRightPid = rearRightMotor.getPIDController();
 
-    gyroAhrs.reset();
+    frontLeftPid. setP(.1);
+    frontRightPid.setP(.1);
+    rearLeftPid.  setP(.1);
+    rearRightPid. setP(.1);
 
-    // TODO Translation2d(x, y);
-    Translation2d FL_location = new Translation2d( DriveConstants.wheelDistance_x,  DriveConstants.wheelDistance_y);
-    Translation2d FR_location = new Translation2d( DriveConstants.wheelDistance_x, -DriveConstants.wheelDistance_y);
-    Translation2d RL_location = new Translation2d(-DriveConstants.wheelDistance_x,  DriveConstants.wheelDistance_y);
-    Translation2d RR_location = new Translation2d(-DriveConstants.wheelDistance_x, -DriveConstants.wheelDistance_y);
+    frontLeftPid. setI(.0);
+    frontRightPid.setI(.0);
+    rearLeftPid.  setI(.0);
+    rearRightPid. setI(.0);
 
-    kinematics = new MecanumDriveKinematics(FL_location, FR_location, RL_location, RR_location);
-
-    Pose2d initialPose = new Pose2d(0, 0, new Rotation2d());
-
-    poseEstimator = new MecanumDrivePoseEstimator(kinematics, this.getGyroRotation(), this.getWheelPositions(), initialPose);
+    frontLeftPid. setD(.0);
+    frontRightPid.setD(.0);
+    rearLeftPid.  setD(.0);
+    rearRightPid. setD(.0);
   }
 
-  public void driveWithSpeed(double xSpeed, double ySpeed, double zRotation, double speedModifier) {
-    xSpeed *= speedModifier;
-    ySpeed *= speedModifier;
-    zRotation *= speedModifier;
+  public void drive(double xSpeed, double ySpeed, double zRotation) {
+    wheelSpeeds = MecanumDrive.driveCartesianIK(xSpeed, ySpeed, zRotation);
 
-    m_drive.driveCartesian(xSpeed, ySpeed, zRotation);
-  }
-
-  private Rotation2d getGyroRotation() {
-    double degree = gyroAhrs.getAngle();
-    double radian = degree * Math.PI * 0.0027777777; // degree * PI / 360
-    return new Rotation2d(radian);
-  }
-
-  private MecanumDriveWheelPositions getWheelPositions() {
-    double[] wheelPositions = this.getWheelPositionsRaw();
-    return new MecanumDriveWheelPositions(wheelPositions[0], wheelPositions[1], wheelPositions[2], wheelPositions[3]);
-  }
-
-  private double[] getWheelPositionsRaw() {
-    return new double[] {
-      frontLeftEncoder.getPosition(),
-      frontRightEncoder.getPosition(),
-      rearLeftEncoder.getPosition(),
-      rearRightEncoder.getPosition()
-    };
+    frontLeftPid.setReference(wheelSpeeds.frontLeft * currentSpeed, ControlType.kVelocity);
+    frontRightPid.setReference(wheelSpeeds.frontRight * currentSpeed, ControlType.kVelocity);
+    rearLeftPid.setReference(wheelSpeeds.rearLeft * currentSpeed, ControlType.kVelocity);
+    rearRightPid.setReference(wheelSpeeds.rearRight * currentSpeed, ControlType.kVelocity);
   }
 
   public void increaseSpeed() {
     if (speedModifier == 1) return;
     speedModifier += 0.1;
+
+    this.currentSpeed = DriveConstants.BASE_SPEED * this.speedModifier;
   }
 
   public void decreaseSpeed() {
     if (speedModifier == 0.1) return;
     speedModifier -= 0.1;
+
+    this.currentSpeed = DriveConstants.BASE_SPEED * this.speedModifier;
   }
 
   public double getSpeedModifier() {
     return this.speedModifier;
+  }
+
+  public double getCurrentSpeed() {
+    return this.currentSpeed;
   }
 
   @Override
