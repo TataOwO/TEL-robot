@@ -11,7 +11,10 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
+import edu.wpi.first.wpilibj.drive.MecanumDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Constants.*;
 
@@ -40,6 +43,11 @@ public class MecanumDriveSubsystem extends SubsystemBase {
   private double speedModifier = 0.6;
   private double currentSpeed = DriveConstants.BASE_SPEED * speedModifier;
 
+  private double positionClosedKP  = DriveConstants.positionClosedKP;
+  private double positionClosedKI  = DriveConstants.positionClosedKI;
+  private double positionClosedKD  = DriveConstants.positionClosedKD;
+  private double positionClosedKFF = DriveConstants.positionClosedKFF;
+
   public MecanumDriveSubsystem() {
     frontLeftMotor = new CANSparkMax(DriveConstants.FRONT_LEFT_MOTOR_ID, driveMotorType);
     frontRightMotor = new CANSparkMax(DriveConstants.FRONT_RIGHT_MOTOR_ID, driveMotorType);
@@ -56,24 +64,12 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     rearLeftPid = rearLeftMotor.getPIDController();
     rearRightPid = rearRightMotor.getPIDController();
 
-    double kP = 1e-3;
-    double kI = 1e-7;
-    double kD = 1;
+    this.resetPID();
 
-    frontLeftPid. setP(kP);
-    frontRightPid.setP(kP);
-    rearLeftPid.  setP(kP);
-    rearRightPid. setP(kP);
-
-    frontLeftPid. setI(kI);
-    frontRightPid.setI(kI);
-    rearLeftPid.  setI(kI);
-    rearRightPid. setI(kI);
-
-    frontLeftPid. setD(kD);
-    frontRightPid.setD(kD);
-    rearLeftPid.  setD(kD);
-    rearRightPid. setD(kD);
+    SmartDashboard.putNumber("kP" , positionClosedKP);
+    SmartDashboard.putNumber("kI" , positionClosedKI);
+    SmartDashboard.putNumber("kD" , positionClosedKD);
+    SmartDashboard.putNumber("kFF", positionClosedKFF);
   }
 
   public void drive(double xSpeed, double ySpeed, double zRotation) {
@@ -82,6 +78,35 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     zRotation *= this.speedModifier;
 
     m_drive.driveCartesian(xSpeed, ySpeed, zRotation);
+  }
+
+  public void drivePositionClosedLoop(double degree) {
+    frontLeftPid .setReference(-degree * currentSpeed, ControlType.kPosition);
+    frontRightPid.setReference( degree * currentSpeed, ControlType.kPosition);
+    rearLeftPid  .setReference(-degree * currentSpeed, ControlType.kPosition);
+    rearRightPid .setReference( degree * currentSpeed, ControlType.kPosition);
+  }
+
+  public void resetPID() {
+    frontLeftPid. setP(positionClosedKP);
+    frontRightPid.setP(positionClosedKP);
+    rearLeftPid.  setP(positionClosedKP);
+    rearRightPid. setP(positionClosedKP);
+
+    frontLeftPid. setI(positionClosedKI);
+    frontRightPid.setI(positionClosedKI);
+    rearLeftPid.  setI(positionClosedKI);
+    rearRightPid. setI(positionClosedKI);
+
+    frontLeftPid. setD(positionClosedKD);
+    frontRightPid.setD(positionClosedKD);
+    rearLeftPid.  setD(positionClosedKD);
+    rearRightPid. setD(positionClosedKD);
+
+    frontLeftPid. setFF(positionClosedKFF);
+    frontRightPid.setFF(positionClosedKFF);
+    rearLeftPid.  setFF(positionClosedKFF);
+    rearRightPid. setFF(positionClosedKFF);
   }
 
   public void increaseSpeed() {
@@ -108,7 +133,30 @@ public class MecanumDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // poseEstimator.update(this.getGyroRotation(), this.getWheelPositions());
+    double kP  = SmartDashboard.getNumber("kP" , positionClosedKP);
+    double kI  = SmartDashboard.getNumber("kI" , positionClosedKI);
+    double kD  = SmartDashboard.getNumber("kD" , positionClosedKD);
+    double kFF = SmartDashboard.getNumber("kFF", positionClosedKFF);
+    boolean isValueChanged = false;
+
+    if (kP != positionClosedKP) {
+      positionClosedKP = kP;
+      isValueChanged = true;
+    }
+    if (kI != positionClosedKI) {
+      positionClosedKI = kI;
+      isValueChanged = true;
+    }
+    if (kD != positionClosedKD) {
+      positionClosedKD = kD;
+      isValueChanged = true;
+    }
+    if (kFF != positionClosedKFF) {
+      positionClosedKFF = kFF;
+      isValueChanged = true;
+    }
+
+    if (isValueChanged) this.resetPID();
 
     return;
   }
