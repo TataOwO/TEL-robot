@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 /** An example command that uses an example subsystem. */
 public class ShooterCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ShooterSubsystem m_shooterSubsystem;
+  private final ShooterSubsystem shooter_subsystem;
   private final Timer timer = new Timer();
 
   /**
@@ -21,7 +21,7 @@ public class ShooterCommand extends Command {
    * @param subsystem The subsystem used by this command.
    */
   public ShooterCommand(ShooterSubsystem subsystem) {
-    m_shooterSubsystem = subsystem;
+    shooter_subsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }

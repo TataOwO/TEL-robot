@@ -14,38 +14,31 @@ import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LoaderConstants;
+import frc.robot.Constants.TransporterConstants;;
 
-public class LoaderSubsystem extends SubsystemBase {
-  private final WPI_VictorSPX m_loader;
-  private final int loader_can_id;
-  private final LoaderConstants.loaderSide loader_side;
+public class TransporterSubsystem extends SubsystemBase {
+  private final WPI_VictorSPX m_transporter;
+  private final VictorSPXConfiguration transporter_configs = new VictorSPXConfiguration();
 
   private final VelocityVoltage m_velocity_voltage = new VelocityVoltage(0).withSlot(0);
   private final NeutralOut motor_brake = new NeutralOut();
 
   private StatusCode loader_status = StatusCode.StatusCodeNotInitialized;
 
-  public LoaderSubsystem(LoaderConstants.loaderSide loader_side) {
-    this.loader_side = loader_side;
-
-    loader_can_id = loader_side.getMotor_id();
-
-    m_loader = new WPI_VictorSPX(loader_can_id);
-
-    m_loader.setInverted(true);
+  public TransporterSubsystem() {
+    m_transporter = new WPI_VictorSPX(TransporterConstants.TRANSPORTER_MOTOR_ID);
     
-    m_loader.config_kP(0, 0.1);
-    m_loader.config_kI(0, 0.01);
-    m_loader.config_kD(0, 0.0);
+    m_transporter.config_kP(0, 0.1);
+    m_transporter.config_kI(0, 0.01);
+    m_transporter.config_kD(0, 0.0);
   }
 
   /**
    * 
    * @param speed rotation per second
    */
-  public Command loadCommand(double speed) {
-    return this.runOnce(loadRunnable(speed));
+  public Command transportCommand(double speed) {
+    return this.runOnce(transportRunnable(speed));
   }
 
   public Command stopCommand() {
@@ -56,8 +49,8 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param speed rotation per second
    */
-  private Runnable loadRunnable(double speed) {
-    return () -> load(speed);
+  private Runnable transportRunnable(double speed) {
+    return () -> transport(speed);
   }
 
   private Runnable stopRunnable() {
@@ -68,12 +61,12 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param speed rotation per second
    */
-  private void load(double speed) {
-    m_loader.set(speed);
+  private void transport(double speed) {
+    m_transporter.set(speed);
   }
 
   private void stop() {
-    m_loader.set(0);
+    m_transporter.set(0);
   }
 
   @Override

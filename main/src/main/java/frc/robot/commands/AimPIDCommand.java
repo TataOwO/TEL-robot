@@ -4,8 +4,6 @@
 
 package frc.robot.commands;
 
-import java.lang.Math;
-
 import frc.robot.subsystems.MecanumDriveSubsystem;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -19,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /** An example command that uses an example subsystem. */
-public class AimCommand extends Command {
+public class AimPIDCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final MecanumDriveSubsystem m_drive;
   private final Pigeon2 gyro;
@@ -34,7 +32,7 @@ public class AimCommand extends Command {
    *
    * @param m_drive The subsystem used by this command.
    */
-  public AimCommand(MecanumDriveSubsystem m_drive, Pigeon2 gyro, double target_degree) {
+  public AimPIDCommand(MecanumDriveSubsystem m_drive, Pigeon2 gyro, double target_degree) {
     this.m_drive = m_drive;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drive);
@@ -55,33 +53,13 @@ public class AimCommand extends Command {
   @Override
   public void execute() {
     double degree = target_degree-gyro.getAngle();
-    // double degree10 = degree*0.0027777777;
+    double degree10 = degree*0.0027777777;
 
-    double speed = this.calculateSpeed(degree);
+    System.out.println(String.format("%f %f", degree, degree10));
 
-    current_wheel_speeds = MecanumDrive.driveCartesianIK(0, 0, speed);
+    current_wheel_speeds = MecanumDrive.driveCartesianIK(0, 0, degree10);
 
-    System.out.println(String.format("%f %f", degree, speed));
-
-    m_drive.drive(0, 0, speed);
-  }
-
-  private double calculateSpeed(double degree) {
-    int positivity = (degree>0)? -1: 1;
-    double outputSpeed = 0;
-    
-    double d = Math.abs(degree);
-
-    if (d < 5) outputSpeed = 0;
-    else if (d < 15) outputSpeed = 0.2;
-    else if (d < 30) outputSpeed = 0.3;
-    else if (d < 50) outputSpeed = 0.4;
-    else if (d < 70) outputSpeed = 0.5;
-    else outputSpeed = 0.6;
-
-    outputSpeed *= positivity;
-
-    return outputSpeed;
+    m_drive.drivePositionClosedLoop(degree10);
   }
 
   // Called once the command ends or is interrupted.
@@ -91,8 +69,6 @@ public class AimCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (this.current_wheel_speeds == null) return true;
-
     if (Math.abs(target_degree-gyro.getAngle()) > 5) return false;
     if (current_wheel_speeds.frontLeft  > 0.1) return false;
     if (current_wheel_speeds.frontRight > 0.1) return false;

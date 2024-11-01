@@ -5,17 +5,26 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
+import frc.robot.Constants.UltrasonicConstants.ultrasonicSide;
+import frc.robot.commands.AimPIDCommand;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.subsystems.*;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -27,25 +36,30 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final MecanumDriveSubsystem m_driveSubsystem = new MecanumDriveSubsystem();
-  // private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-  // private final LoaderSubsystem m_loaderSubsystem = new LoaderSubsystem();
+  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  private final LoaderSubsystem m_frontLoaderSubsystem = new LoaderSubsystem(LoaderConstants.loaderSide.FRONT);
+  private final LoaderSubsystem m_leftLoaderSubsystem = new LoaderSubsystem(LoaderConstants.loaderSide.LEFT);
+  private final TransporterSubsystem m_transporterSubsystem = new TransporterSubsystem();
+  private final UltrasonicSubsystem ultrasonic_subsystem = new UltrasonicSubsystem(UltrasonicConstants.ultrasonicSide.TEST);
+
+  private XboxController controller;// = new XboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private final Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
   private final Pigeon2 gyro = new Pigeon2(16);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private CommandXboxController m_driverController;// =
+      //new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
 
-    m_driveSubsystem.setDefaultCommand(m_driveSubsystem.run(() -> m_driveSubsystem.drive(
-      m_driverController.getLeftY(),
-      m_driverController.getLeftX(),
-      -m_driverController.getRightX()
-    )));
+    compressor.enableDigital();
+    compressor.disable();
+
+    System.out.println(gyro.getAngle());
   }
 
   /**
@@ -58,15 +72,48 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    // shooter
+    // m_driverController.y().onTrue(m_shooterSubsystem.shootCommand(120));
+    // m_driverController.y().onFalse(m_shooterSubsystem.stopCommand());
 
-    m_driverController.x().toggleOnTrue(new AimCommand(m_driveSubsystem, gyro, -90));
-    m_driverController.b().toggleOnTrue(new AimCommand(m_driveSubsystem, gyro, +90));
+    // // left loader
+    // m_driverController.x().onTrue(m_leftLoaderSubsystem.loadCommand(0.4));
+    // m_driverController.x().onFalse(m_leftLoaderSubsystem.stopCommand());
 
-    m_driverController.leftBumper()
-      .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.decreaseSpeed()));
-    m_driverController.rightBumper()
-      .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.increaseSpeed()));
+    // // front loader
+    // m_driverController.b().onTrue(m_frontLoaderSubsystem.loadCommand(0.4));
+    // m_driverController.b().onFalse(m_frontLoaderSubsystem.stopCommand());
+
+    // // transporter
+    // m_driverController.a().onTrue(m_transporterSubsystem.transportCommand(0.4));
+    // m_driverController.a().onFalse(m_transporterSubsystem.stopCommand());
+
+    AimCommand turnLeft  = new AimCommand(m_driveSubsystem, gyro, -90);
+    AimCommand turnRight = new AimCommand(m_driveSubsystem, gyro, +90);
+
+    // drive movement (WIP)
+    // m_driverController.back(). toggleOnTrue(turnLeft) ;
+    // m_driverController.start().toggleOnTrue(turnRight);
+
+    // drive movement
+    /* new Trigger(() -> {
+      return Math.abs(m_driverController.getLeftY())>0.1 &&
+        Math.abs(m_driverController.getLeftX())>0.1 &&
+        Math.abs(m_driverController.getRightX())>0.1 &&
+        !turnRight.isScheduled() &&
+        !turnLeft. isScheduled();
+    }).onTrue */
+    // m_driveSubsystem.setDefaultCommand(m_driveSubsystem.run(() -> m_driveSubsystem.drive(
+    //   m_driverController.getLeftY(),
+    //   m_driverController.getLeftX(),
+    //   -m_driverController.getRightX()
+    // )));
+
+    // drive change speed modifier
+    // m_driverController.leftBumper()
+    //   .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.decreaseSpeed()));
+    // m_driverController.rightBumper()
+    //   .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.increaseSpeed()));
   }
 
   /**

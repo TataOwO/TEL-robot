@@ -18,32 +18,30 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
-  private final TalonFX m_topShooter;
-  private final TalonFX m_botShooter;
-  private final TalonFXConfiguration topShooterConfigs = new TalonFXConfiguration();
+  private final TalonFX m_shooter;
+  private final TalonFXConfiguration shooter_configs = new TalonFXConfiguration();
 
-  private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
+  private final VelocityVoltage m_velocity_voltage = new VelocityVoltage(0).withSlot(0);
   private final NeutralOut m_brake = new NeutralOut();
 
-  private final StatusSignal<Double> topShooterVelocity;
+  private final StatusSignal<Double> shooter_velocity;
 
-  private StatusCode shooterStatus = StatusCode.StatusCodeNotInitialized;
+  private StatusCode shooter_status = StatusCode.StatusCodeNotInitialized;
 
   public ShooterSubsystem() {
-    topShooterConfigs.Slot0.kP = 0.1;
-    topShooterConfigs.Slot0.kI = 0.01;
-    topShooterConfigs.Slot0.kD = 0;
+    shooter_configs.Slot0.kP = 0.1;
+    shooter_configs.Slot0.kI = 0.01;
+    shooter_configs.Slot0.kD = 0;
 
-    m_topShooter = new TalonFX(ShooterConstants.TOP_SHOOTER_MOTOR_ID);
-    m_botShooter = new TalonFX(ShooterConstants.BOTTOM_SHOOTER_MOTOR_ID);
+    m_shooter = new TalonFX(ShooterConstants.SHOOTER_MOTOR_ID);
 
     for (int i=0; i<5; i++) {
-      shooterStatus = m_topShooter.getConfigurator().apply(topShooterConfigs);
-      if (shooterStatus.isOK()) break;
+      shooter_status = m_shooter.getConfigurator().apply(shooter_configs);
+      if (shooter_status.isOK()) break;
     }
-    if (!shooterStatus.isOK()) System.out.println("An error occured at shooter subsystem: " + shooterStatus.toString());
+    if (!shooter_status.isOK()) System.out.println("An error occured at shooter subsystem: " + shooter_status.toString());
 
-    topShooterVelocity = m_topShooter.getVelocity();
+    shooter_velocity = m_shooter.getVelocity();
   }
 
   /**
@@ -75,20 +73,20 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param RPS rotation per second
    */
   private void shoot(double RPS) {
-    m_topShooter.setControl(m_velocityVoltage.withVelocity(RPS));
+    m_shooter.setControl(m_velocity_voltage.withVelocity(RPS));
   }
 
   private void stop() {
-    m_topShooter.setControl(m_brake);
+    m_shooter.setControl(m_brake);
   }
 
   @Override
   public void periodic() {
-    topShooterVelocity.refresh();
+    shooter_velocity.refresh();
   }
 
   @Override
   public void simulationPeriodic() {
-    topShooterVelocity.refresh();
+    shooter_velocity.refresh();
   }
 }
