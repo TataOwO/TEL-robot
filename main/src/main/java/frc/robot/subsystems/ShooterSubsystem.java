@@ -72,11 +72,11 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param RPS rotation per second
    */
-  private void shoot(double RPS) {
+  public void shoot(double RPS) {
     m_shooter.setControl(m_velocity_voltage.withVelocity(RPS));
   }
 
-  private void stop() {
+  public void stop() {
     m_shooter.setControl(m_brake);
   }
 

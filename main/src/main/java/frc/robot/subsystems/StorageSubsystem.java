@@ -10,10 +10,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class StorageSubsystem extends SubsystemBase {
-  private final DigitalOutput button;
+  // private final DigitalOutput top_button;
+  private final DigitalOutput bot_button;
+
+  
   /** Creates a new StorageSubsystem. */
   public StorageSubsystem() {
-    button = new DigitalOutput(0);
+    bot_button = new DigitalOutput(9);
   }
 
   /**
@@ -42,8 +45,8 @@ public class StorageSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("", false);
     // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("bottom button", bot_button.get());
   }
 
   @Override

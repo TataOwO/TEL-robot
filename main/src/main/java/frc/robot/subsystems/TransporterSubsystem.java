@@ -61,11 +61,11 @@ public class TransporterSubsystem extends SubsystemBase {
    * 
    * @param speed rotation per second
    */
-  private void transport(double speed) {
+  public void transport(double speed) {
     m_transporter.set(speed);
   }
 
-  private void stop() {
+  public void stop() {
     m_transporter.set(0);
   }
 

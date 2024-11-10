@@ -4,12 +4,24 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.ShootCommand;
 
-public class PwmLimitSwitchSubsystem extends SubsystemBase {
-  /** Creates a new PwmLimitSwitchSubsystem. */
-  public PwmLimitSwitchSubsystem() {}
+public class TestSubsystem extends SubsystemBase {
+  private final Timer timer = new Timer();
+  private final ShooterSubsystem shooter_subsystem;
+  private final TransporterSubsystem transport_subsystem;
+  
+  private boolean ran = false;
+  private ShootCommand shootCommand;
+
+  /** Creates a new ExampleSubsystem. */
+  public TestSubsystem(ShooterSubsystem shooter_subsystem, TransporterSubsystem transport_subsystem) {
+    this.shooter_subsystem = shooter_subsystem;
+    this.transport_subsystem = transport_subsystem;
+  }
 
   /**
    * Example command factory method.
@@ -38,6 +50,12 @@ public class PwmLimitSwitchSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if (ran) return;
+
+    if (timer.get() > 5) {
+      this.shootCommand = new ShootCommand(shooter_subsystem, transport_subsystem);
+      ran = true;
+    }
   }
 
   @Override

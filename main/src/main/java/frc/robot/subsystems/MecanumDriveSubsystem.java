@@ -165,6 +165,8 @@ public class MecanumDriveSubsystem extends SubsystemBase {
 
     if (isValueChanged) this.resetPID();
 
+    this.m_drive.driveCartesian(0, 0, 0);
+
     return;
   }
 

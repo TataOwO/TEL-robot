@@ -22,9 +22,6 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    public static final int TOP_SHOOTER_ROTATION_SPEED = 1;
-    public static final int BOTTOM_SHOOTER_ROTATION_SPEED = 1;
-
     public static final int SHOOTER_MOTOR_ID = 3;
   }
 
@@ -32,6 +29,20 @@ public final class Constants {
     public static final int TRANSPORTER_ROTATION_SPEED = 1;
 
     public static final int TRANSPORTER_MOTOR_ID = 1;
+  }
+
+  public static class StorageConstants {
+    public static enum StorageSide {
+      FRONT (0),
+      LEFT  (1);
+
+      private final int motor_id;
+
+      StorageSide(int motor_id) {
+        this.motor_id = motor_id;
+      }
+      
+    }
   }
 
   public static class LoaderConstants {
@@ -57,21 +68,27 @@ public final class Constants {
   }
 
   public static class UltrasonicConstants {
-    public static enum ultrasonicSide {
-      TEST       (0, 1),
-      FRONT      (0, 1),
-      BACK       (0, 1),
-      LEFT_FRONT (0, 1),
-      LEFT_BACK  (0, 1),
-      RIGHT_FRONT(0, 1),
-      RIGHT_BACK (0, 1);
+    public static enum UltrasonicSide {
+      TEST       (0, 1, 0, -7, 20),
+      FRONT      (0, 1, 0, 0, 0),
+      BACK       (0, 1, 0, 0, 0),
+      LEFT_FRONT (0, 1, 0, 0, 0),
+      LEFT_BACK  (0, 1, 0, 0, 0),
+      RIGHT_FRONT(0, 1, 0, 0, 0),
+      RIGHT_BACK (0, 1, 0, 0, 0);
 
       private final int trig_channel;
       private final int echo_channel;
+      private final int base_angle;
+      private final double offset_x;
+      private final double offset_y;
 
-      ultrasonicSide(int trig_channel, int echo_channel) {
+      UltrasonicSide(int trig_channel, int echo_channel, int base_angle, double offset_x, double offset_y) {
         this.trig_channel = trig_channel;
         this.echo_channel = echo_channel;
+        this.base_angle   = base_angle;
+        this.offset_x     = offset_x;
+        this.offset_y     = offset_y;
       }
 
       public int getTrigChannel() {
@@ -80,6 +97,14 @@ public final class Constants {
 
       public int getEchoChannel() {
         return this.echo_channel;
+      }
+
+      public int getBaseAngle() {
+        return this.base_angle;
+      }
+
+      public double[] getOffset() {
+        return new double[] {offset_x, offset_y};
       }
     }
   }
