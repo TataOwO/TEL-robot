@@ -49,8 +49,8 @@ public class MecanumDriveSubsystem extends SubsystemBase {
   private double position_closed_kFF = DriveConstants.POSITION_CLOSED_KFF;
 
   public MecanumDriveSubsystem() {
-    front_left_motor  = new CANSparkMax(DriveConstants.FRONT_LEFT_MOTOR_ID , drive_motor_type);
-    front_right_motor = new CANSparkMax(DriveConstants.FRONT_RIGHT_MOTOR_ID, drive_motor_type);
+    front_left_motor  = new CANSparkMax(DriveConstants.LEFT_FRONT_MOTOR_ID , drive_motor_type);
+    front_right_motor = new CANSparkMax(DriveConstants.RIGHT_FRONT_MOTOR_ID, drive_motor_type);
     rear_left_motor   = new CANSparkMax(DriveConstants.REAR_LEFT_MOTOR_ID  , drive_motor_type);
     rear_right_motor  = new CANSparkMax(DriveConstants.REAR_RIGHT_MOTOR_ID , drive_motor_type);
 

@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 
@@ -19,6 +20,7 @@ import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final TalonFX m_shooter;
+  private final WPI_VictorSPX m_shooter_support;
   private final TalonFXConfiguration shooter_configs = new TalonFXConfiguration();
 
   private final VelocityVoltage m_velocity_voltage = new VelocityVoltage(0).withSlot(0);
@@ -34,6 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
     shooter_configs.Slot0.kD = 0;
 
     m_shooter = new TalonFX(ShooterConstants.SHOOTER_MOTOR_ID);
+    m_shooter_support = new WPI_VictorSPX(ShooterConstants.SHOOTER_SUPPORT_MOTOR_ID);
 
     for (int i=0; i<5; i++) {
       shooter_status = m_shooter.getConfigurator().apply(shooter_configs);
@@ -48,8 +51,8 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param RPS rotation per second
    */
-  public Command shootCommand(double RPS) {
-    return this.runOnce(shootRunnable(RPS));
+  public Command shootCommand(double RPS, double support_speed) {
+    return this.runOnce(shootRunnable(RPS, support_speed));
   }
 
   public Command stopCommand() {
@@ -60,8 +63,8 @@ public class ShooterSubsystem extends SubsystemBase {
    * 
    * @param RPS rotation per second
    */
-  private Runnable shootRunnable(double RPS) {
-    return () -> shoot(RPS);
+  private Runnable shootRunnable(double RPS, double support_speed) {
+    return () -> shoot(RPS, support_speed);
   }
 
   private Runnable stopRunnable() {
@@ -70,14 +73,17 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * 
-   * @param RPS rotation per second
+   * @param RPS rotation per second 0~120
+   * @param support_speed current 0.0~1.0
    */
-  public void shoot(double RPS) {
+  public void shoot(double RPS, double support_speed) {
     m_shooter.setControl(m_velocity_voltage.withVelocity(RPS));
+    m_shooter_support.set(support_speed);
   }
 
   public void stop() {
     m_shooter.setControl(m_brake);
+    m_shooter_support.set(0);
   }
 
   @Override

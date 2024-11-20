@@ -12,22 +12,18 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TransporterConstants;;
 
 public class TransporterSubsystem extends SubsystemBase {
+  // motors
   private final WPI_VictorSPX m_transporter;
-  private final VictorSPXConfiguration transporter_configs = new VictorSPXConfiguration();
-
-  private final VelocityVoltage m_velocity_voltage = new VelocityVoltage(0).withSlot(0);
-  private final NeutralOut motor_brake = new NeutralOut();
-
-  private StatusCode loader_status = StatusCode.StatusCodeNotInitialized;
-
+  
   public TransporterSubsystem() {
-    m_transporter = new WPI_VictorSPX(TransporterConstants.TRANSPORTER_MOTOR_ID);
-    
+    m_transporter     = new WPI_VictorSPX(TransporterConstants.TRANSPORTER_MOTOR_ID);
+
     m_transporter.config_kP(0, 0.1);
     m_transporter.config_kI(0, 0.01);
     m_transporter.config_kD(0, 0.0);
@@ -41,8 +37,8 @@ public class TransporterSubsystem extends SubsystemBase {
     return this.runOnce(transportRunnable(speed));
   }
 
-  public Command stopCommand() {
-    return this.runOnce(stopRunnable());
+  public Command stopTransportCommand() {
+    return this.runOnce(stopTransportRunnable());
   }
 
   /**
@@ -53,8 +49,8 @@ public class TransporterSubsystem extends SubsystemBase {
     return () -> transport(speed);
   }
 
-  private Runnable stopRunnable() {
-    return () -> stop();
+  private Runnable stopTransportRunnable() {
+    return () -> stopTransport();
   }
 
   /**
@@ -65,7 +61,7 @@ public class TransporterSubsystem extends SubsystemBase {
     m_transporter.set(speed);
   }
 
-  public void stop() {
+  public void stopTransport() {
     m_transporter.set(0);
   }
 

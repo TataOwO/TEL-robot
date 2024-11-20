@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import java.util.ArrayList;
+
 import javax.sound.midi.Soundbank;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -23,10 +25,17 @@ public class UltrasonicSubsystem extends SubsystemBase {
 
   private final UltrasonicSide m_side;
 
-  // private final DigitalOutput ping_channel;
-  // private final DigitalInput echo_channel;
-
   private final Ultrasonic ultrasonic;
+
+  // position processing
+  private final int MAX_READINGS_SIZE = 10;
+  private final double MAX_DEVIATION = 100; // 10cm
+  private final double MAX_VALID_DISTANCE = 5000; // 5meter
+  private final double MIN_VALID_DISTANCE = 30;  // 3 cm
+  private final double KALMAN_GAIN = 0.5;
+
+  private final ArrayList<Double> recent_readings = new ArrayList<>();
+  private int readings_size = 0;
 
   /** Creates a new UltrasonicSubsystem. */
   public UltrasonicSubsystem(UltrasonicSide side) {
@@ -34,29 +43,56 @@ public class UltrasonicSubsystem extends SubsystemBase {
     echo_channel_id = side.getEchoChannel();
     m_side = side;
 
-    // ping_channel = new DigitalOutput(ping_channel_id);
-    // echo_channel = new DigitalInput(echo_channel_id);
-
     ultrasonic = new Ultrasonic(trig_channel_id, echo_channel_id);
 
     Ultrasonic.setAutomaticMode(true);
   }
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
+  private double getProcessedRangeMM() {
+    double raw_distance = getRangeMM();
+
+    // check if distance out of range
+    if (raw_distance < MIN_VALID_DISTANCE) return -1;
+    if (raw_distance > MAX_VALID_DISTANCE) return -1;
+
+    // add
+    recent_readings.add(raw_distance);
+
+    readings_size = recent_readings.size();
+
+    // if array size exceeds, remove old
+    if (readings_size > MAX_READINGS_SIZE) recent_readings.remove(0);
+    else return raw_distance; // not enough data => return raw
+
+    // first check
+    double sum = 0;
+    double average = 0;
+
+    for (double reading : recent_readings) {
+      sum += reading;
+    }
+
+    average = sum / MAX_READINGS_SIZE;
+
+    // average with acceptable deviation
+    sum = 0;
+    int valid_readings = 0;
+
+    for (double reading : recent_readings) {
+      if (Math.abs(reading - average) > MAX_DEVIATION) continue;
+      
+      sum += reading;
+      ++valid_readings;
+    }
+
+    // if we have more than 3 inputs with acceptable deviations
+    if (valid_readings > 3) return sum / valid_readings;
+
+    // otherwise, use simple kalman-inspired filter
+    return average + this.KALMAN_GAIN*(raw_distance-average);
   }
 
-  public double getRangeMM() {
+  private double getRangeMM() {
     return this.ultrasonic.getRangeMM();
   }
 
@@ -64,28 +100,20 @@ public class UltrasonicSubsystem extends SubsystemBase {
     return this.m_side;
   }
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
-  public double[] calculatePosition(double current_angle_r) {
+  public double[] calculatePosition(double current_angle_radian) { // TODO: TEST THIS CODE
     // distance between ultrasonic and the center
-    double base_x = Math.cos(current_angle_r);
-    double base_y = Math.sin(current_angle_r);
+    double base_x = -Math.sin(current_angle_radian);
+    double base_y =  Math.cos(current_angle_radian);
 
-    double sonic_angle_r = Math.toRadians(m_side.getBaseAngle()) + current_angle_r;
+    double sonic_angle_r = Math.toRadians(m_side.getBaseAngle()) + current_angle_radian;
 
-    double distance = this.getRangeMM();
+    double distance = this.getProcessedRangeMM();
+
+    if (distance == -1) return new double[] {-1};
 
     // distance between ultrasonic and object
-    double distance_x = Math.cos(sonic_angle_r) * distance;
-    double distance_y = Math.sin(sonic_angle_r) * distance;
+    double distance_x = -Math.sin(sonic_angle_r) * distance;
+    double distance_y =  Math.cos(sonic_angle_r) * distance;
 
     return new double[] {base_x+distance_x, -base_y-distance_y};
   }

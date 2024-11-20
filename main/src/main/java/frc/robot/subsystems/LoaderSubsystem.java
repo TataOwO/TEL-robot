@@ -14,27 +14,26 @@ import com.ctre.phoenix6.StatusSignal;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LoaderConstants;
+import frc.robot.Constants.LoaderConstants.loaderSide;
 
 public class LoaderSubsystem extends SubsystemBase {
   private final WPI_VictorSPX m_loader;
   private final int loader_can_id;
-  private final LoaderConstants.loaderSide loader_side;
+  private final loaderSide loader_side;
 
-  private final VelocityVoltage m_velocity_voltage = new VelocityVoltage(0).withSlot(0);
-  private final NeutralOut motor_brake = new NeutralOut();
+  private int discs_count;
 
-  private StatusCode loader_status = StatusCode.StatusCodeNotInitialized;
-
-  public LoaderSubsystem(LoaderConstants.loaderSide loader_side) {
+  public LoaderSubsystem(loaderSide loader_side) {
     this.loader_side = loader_side;
 
-    loader_can_id = loader_side.getMotor_id();
+    loader_can_id = loader_side.getMotorId();
 
     m_loader = new WPI_VictorSPX(loader_can_id);
 
+    this.discs_count = loader_side.getDefaultDiscCount();
+
     m_loader.setInverted(true);
-    
+
     m_loader.config_kP(0, 0.1);
     m_loader.config_kI(0, 0.01);
     m_loader.config_kD(0, 0.0);
@@ -68,12 +67,21 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param speed rotation per second
    */
-  private void load(double speed) {
+  public void load(double speed) {
     m_loader.set(speed);
   }
 
-  private void stop() {
+  public void stop() {
     m_loader.set(0);
+  }
+
+  public int getDiscCount() {
+    return this.discs_count;
+  }
+
+  public void useDisc() {
+    this.discs_count--;
+    System.out.println(this.loader_side.name() + " discs count: " + this.discs_count);
   }
 
   @Override

@@ -5,12 +5,15 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
+import frc.robot.Constants.StorageConstants.StorageSide;
 import frc.robot.Constants.UltrasonicConstants.UltrasonicSide;
 import frc.robot.commands.AimPIDCommand;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.LoadCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.TransportDirectionCommand;
 import frc.robot.subsystems.*;
 
 import java.util.function.BooleanSupplier;
@@ -34,24 +37,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final Pigeon2 gyro = new Pigeon2(16);
+  // GRYO
+  private final Pigeon2 gyro = new Pigeon2(OperatorConstants.GYRO_PORT);
 
-  // The robot's subsystems and commands are defined here...
-  private final MecanumDriveSubsystem m_driveSubsystem = new MecanumDriveSubsystem();
-  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-  private final LoaderSubsystem m_frontLoaderSubsystem = new LoaderSubsystem(LoaderConstants.loaderSide.FRONT);
-  private final LoaderSubsystem m_leftLoaderSubsystem = new LoaderSubsystem(LoaderConstants.loaderSide.LEFT);
-  private final TransporterSubsystem m_transporterSubsystem = new TransporterSubsystem();
-  private final UltrasonicSubsystem test_ultrasonic_subsystem = new UltrasonicSubsystem(UltrasonicConstants.UltrasonicSide.TEST);
-  private final StorageSubsystem m_left_storageSubsystem = new StorageSubsystem();
+  // DRIVE
+  private final MecanumDriveSubsystem m_drive_subsystem = new MecanumDriveSubsystem();
+
+  // SHOOTER
+  private final ShooterSubsystem m_shooter_subsystem = new ShooterSubsystem();
+
+  // LOADERS
+  private final LoaderSubsystem m_right_loader_subsystem = new LoaderSubsystem(LoaderConstants.loaderSide.RIGHT);
+  private final LoaderSubsystem m_left_loader_subsystem = new LoaderSubsystem(LoaderConstants.loaderSide.LEFT);
+
+  // TRANSPORT
+  private final TransporterSubsystem m_transporter_subsystem = new TransporterSubsystem();
+  public final TransportDirectionSubsystem m_transport_dir_subsystem = new TransportDirectionSubsystem();
+
+  // STORAGE
+  private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
+  // private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageSide.RIGHT);
+
+  // ULTRASONICS
   private final PositionGetterSubsystem m_position_getter_subsystem = new PositionGetterSubsystem(gyro, new UltrasonicSubsystem[] {
-    test_ultrasonic_subsystem
+    new UltrasonicSubsystem(UltrasonicConstants.UltrasonicSide.FRONT),
+    new UltrasonicSubsystem(UltrasonicConstants.UltrasonicSide.LEFT_FRONT),
+    new UltrasonicSubsystem(UltrasonicConstants.UltrasonicSide.RIGHT_FRONT),
   });
 
-  private final Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private CommandXboxController m_driverController =
+  // CONTROLLER
+  public CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -59,12 +74,11 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    compressor.enableDigital();
-    compressor.disable();
-
     gyro.reset();
 
     SmartDashboard.putNumber("shooter speed", 100);
+    SmartDashboard.putNumber("shooter support speed", 0.4);
+    SmartDashboard.putNumber("transport dir", 0.4);
   }
 
   /**
@@ -78,29 +92,53 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // shooter
-    m_driverController.y().toggleOnTrue(new ShootCommand(m_shooterSubsystem, m_transporterSubsystem));
+    m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
 
-    // left loader
-    m_driverController.x().onTrue(m_leftLoaderSubsystem.loadCommand(0.4));
-    m_driverController.x().onFalse(m_leftLoaderSubsystem.stopCommand());
+    TransportDirectionCommand dir_shoot_command = new TransportDirectionCommand(m_transport_dir_subsystem, true);
+    TransportDirectionCommand dir_load_command = new TransportDirectionCommand(m_transport_dir_subsystem, false);
 
-    // front loader
-    m_driverController.b().onTrue(m_frontLoaderSubsystem.loadCommand(0.4));
-    m_driverController.b().onFalse(m_frontLoaderSubsystem.stopCommand());
+    m_driverController.a().toggleOnTrue(Commands.sequence(
+      dir_load_command,
+      Commands.parallel(
+        new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem)
 
+      ),
+      dir_shoot_command
+    ));
+
+    m_driverController.b().onTrue (m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(0.4)));
+    m_driverController.b().onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
+
+    // m_driverController.povDown().onTrue(m_transport_dir_subsystem.run(()->{
+    //   m_transport_dir_subsystem.setShoot();
+    //   m_transport_dir_subsystem.setRunDirection();
+    // }));
+    // m_driverController.povUp() .onTrue(m_transport_dir_subsystem.run(()->{
+    //   m_transport_dir_subsystem.setLoad();
+    //   m_transport_dir_subsystem.setRunDirection();
+    // }));
+    // m_driverController.povDown().or(m_driverController.povUp()).onFalse(m_transport_dir_subsystem.run(()->m_transport_dir_subsystem.stopDirection()));
+
+    // if (m_driverController.start().getAsBoolean()) {
+    //   m_transport_dir_subsystem.setLoad();
+    //   m_transport_dir_subsystem.setRunDirection();
+    // } else {
+    //   m_transport_dir_subsystem.stopDirection();
+    // }
+    
     // transporter
-    m_driverController.a().onTrue(m_transporterSubsystem.transportCommand(0.4));
-    m_driverController.a().onFalse(m_transporterSubsystem.stopCommand());
+    m_driverController.x().onTrue(m_transporter_subsystem.transportCommand(-0.4));
+    m_driverController.x().onFalse(m_transporter_subsystem.stopTransportCommand());
 
-    AimCommand turnLeft  = new AimCommand(m_driveSubsystem, gyro, -90);
-    AimCommand turnRight = new AimCommand(m_driveSubsystem, gyro, +90);
+    AimCommand turnLeft  = new AimCommand(m_drive_subsystem, gyro, -90);
+    AimCommand turnRight = new AimCommand(m_drive_subsystem, gyro, +90);
 
     // drive movement (WIP)
-    m_driverController.back(). toggleOnTrue(turnLeft) ;
-    m_driverController.start().toggleOnTrue(turnRight);
+    // m_driverController.back(). toggleOnTrue(new TransportDirectionCommand(m_transport_dir_subsystem, false, m_driverController.back())) ;
+    // m_driverController.start().toggleOnTrue(new TransportDirectionCommand(m_transport_dir_subsystem, true,  m_driverController.start()));
 
     // drive movement
-    m_driveSubsystem.setDefaultCommand(m_driveSubsystem.run(() -> m_driveSubsystem.drive(
+    m_drive_subsystem.setDefaultCommand(m_drive_subsystem.run(() -> m_drive_subsystem.drive(
       m_driverController.getLeftY(),
       m_driverController.getLeftX(),
       -m_driverController.getRightX()
@@ -108,9 +146,9 @@ public class RobotContainer {
 
     // drive change speed modifier
     m_driverController.leftBumper()
-      .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.decreaseSpeed()));
+      .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.decreaseSpeed()));
     m_driverController.rightBumper()
-      .onTrue(m_driveSubsystem.runOnce(() -> m_driveSubsystem.increaseSpeed()));
+      .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.increaseSpeed()));
   }
 
   /**
@@ -121,6 +159,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     // return Autos.exampleAuto(test_subsystem);
-    return new ShootCommand(m_shooterSubsystem, m_transporterSubsystem);
+    return new ShootCommand(m_shooter_subsystem, m_transporter_subsystem);
   }
 }

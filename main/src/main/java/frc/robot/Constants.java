@@ -18,51 +18,74 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
 
+    public static final int GYRO_PORT = 16;
+
     public static final int COMPRESSOR_PORT_ID = 1; // TO BE REMOVED
   }
 
   public static class ShooterConstants {
     public static final int SHOOTER_MOTOR_ID = 3;
+    public static final int SHOOTER_SUPPORT_MOTOR_ID = 1;
   }
 
   public static class TransporterConstants {
-    public static final int TRANSPORTER_ROTATION_SPEED = 1;
+    public static final double TRANSPORTER_ROTATION_SPEED = 1;
+    public static final double DIRECTION_ROTATION_SPEED = 0.4;
 
-    public static final int TRANSPORTER_MOTOR_ID = 1;
+    public static final int TRANSPORTER_MOTOR_ID = 11;
+    public static final int DIRECTION_MOTOR_ID = 12;
+
+    public static final int TOP_BUTTON_PIN = 0;
+    public static final int BOT_BUTTON_PIN = 0;
   }
 
   public static class StorageConstants {
     public static enum StorageSide {
-      FRONT (0),
-      LEFT  (1);
+      RIGHT (2, 0),
+      LEFT  (41, 0);
 
       private final int motor_id;
+      private final int button_id;
 
-      StorageSide(int motor_id) {
-        this.motor_id = motor_id;
+      StorageSide(int motor_id, int button_id) {
+        this.motor_id  = motor_id;
+        this.button_id = button_id;
       }
       
+      public int getMotorId() {
+        return this.motor_id;
+      }
+      
+      public int getButtonId() {
+        return this.button_id;
+      }
     }
   }
 
   public static class LoaderConstants {
-    public static final int LOADER_ROTATION_SPEED = 1;
+    public static final double LOADER_SPEED = 0.4;
 
     public static final int FRONT_LOADER_MOTOR_ID = 7;
-    public static final int LEFT_LOADER_MOTOR_ID = 11;
+    public static final int LEFT_LOADER_MOTOR_ID = 13;
 
     public static enum loaderSide {
-      FRONT (7),
-      LEFT  (11);
+      RIGHT (7, 16),
+      LEFT  (13, 16);
 
       private final int motor_id;
+      private final int discs_count;
 
-      loaderSide(int motor_id) {
+      loaderSide(int motor_id, int discs_count) {
         this.motor_id = motor_id;
+        this.discs_count = discs_count;
       }
 
-      public int getMotor_id() {
+      public int getMotorId() {
         return this.motor_id;
+      }
+
+      public int getDefaultDiscCount() {
+        return this.discs_count;
       }
     }
   }
@@ -70,12 +93,12 @@ public final class Constants {
   public static class UltrasonicConstants {
     public static enum UltrasonicSide {
       TEST       (0, 1, 0, -7, 20),
-      FRONT      (0, 1, 0, 0, 0),
-      BACK       (0, 1, 0, 0, 0),
-      LEFT_FRONT (0, 1, 0, 0, 0),
-      LEFT_BACK  (0, 1, 0, 0, 0),
-      RIGHT_FRONT(0, 1, 0, 0, 0),
-      RIGHT_BACK (0, 1, 0, 0, 0);
+      FRONT      (5, 4, 0, 21, 0),
+      BACK       (0, 1, 180, 0, 0),
+      LEFT_FRONT (7, 6, -90, -291, -22),
+      LEFT_BACK  (0, 1, -90, 0, 0),
+      RIGHT_FRONT(9, 8, 90, 291, -96),
+      RIGHT_BACK (0, 1, 90, 0, 0);
 
       private final int trig_channel;
       private final int echo_channel;
@@ -112,10 +135,10 @@ public final class Constants {
   public static class DriveConstants {
     public static final CANSparkLowLevel.MotorType DRIVE_MOTOR_TYPE = CANSparkLowLevel.MotorType.kBrushless;
 
-    public static final int FRONT_LEFT_MOTOR_ID = 57;
-    public static final int FRONT_RIGHT_MOTOR_ID = 31;
+    public static final int LEFT_FRONT_MOTOR_ID = 57;
+    public static final int RIGHT_FRONT_MOTOR_ID = 11;
     public static final int REAR_LEFT_MOTOR_ID = 4;
-    public static final int REAR_RIGHT_MOTOR_ID = 11;
+    public static final int REAR_RIGHT_MOTOR_ID = 31;
 
     public static final double WHEEL_DISTANCE_X = 0; // x+ -> FRONT
     public static final double WHEEL_DISTANCE_y = 0; // y+ -> LEFT

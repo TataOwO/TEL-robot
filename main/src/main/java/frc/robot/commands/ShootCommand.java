@@ -42,18 +42,26 @@ public class ShootCommand extends Command {
   @Override
   public void execute() {
     current_time = timer.get();
+    double shooter_speed = SmartDashboard.getNumber("shooter speed", 0);
+    double support_speed = Math.min(shooter_speed*0.02+0.2, 1.0);
 
     // shooter 120 RPS (this will depend on the distance)
     // transport 0.4/1
     if (current_time < 1) {
-      shooter_subsystem.shoot(SmartDashboard.getNumber("shooter speed", 0));
-      transport_subsystem.stop();
+      shooter_subsystem.shoot(
+        shooter_speed,
+        support_speed
+      );
+      transport_subsystem.stopTransport();
     } else if (current_time < 2.5) {
-      shooter_subsystem.shoot(SmartDashboard.getNumber("shooter speed", 0));
+      shooter_subsystem.shoot(
+        shooter_speed,
+        support_speed
+      );
       transport_subsystem.transport(0.4);
     } else if (current_time >= 2.5) {
       shooter_subsystem.stop();
-      transport_subsystem.stop();
+      transport_subsystem.stopTransport();
     }
   }
 
@@ -61,7 +69,7 @@ public class ShootCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     shooter_subsystem.stop();
-    transport_subsystem.stop();
+    transport_subsystem.stopTransport();
   }
 
   // Returns true when the command should end.
