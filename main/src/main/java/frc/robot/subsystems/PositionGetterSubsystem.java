@@ -26,7 +26,7 @@ public class PositionGetterSubsystem extends SubsystemBase {
     private final double MAX_POSITION_DEVIATION = 200; // 20cm for robot position deviation
     private final double SMOOTHING_FACTOR = 0.7;
 
-    private final double WALL_TOLERANCE = 150;
+    private final double OBJECT_DETECTION_TOLERANCE = 150;
 
     private final Map<String, List<double[]>> recent_positions = new HashMap<>();
     private double[] estimated_robot_position = new double[] {0, 0};
@@ -45,38 +45,13 @@ public class PositionGetterSubsystem extends SubsystemBase {
         }
     }
 
-    private static class Wallhacks {
-        private static final double LEFT_WALL_X = 0;
-        private static final double RIGHT_WALL_X = 4000;
-        private static final double FRONT_WALL_Y = 0;
-        private static final double WALL_TOLERANCE = 150; // 15cm
-
-        double[] position;      // Detected position
-        double distance;        // Raw distance reading
-        double detectionAngle; // Absolute angle of detection
-        WallType wallType;     // Which wall was detected
-        double confidence;     // Confidence in this reading
-
-        Wallhacks(double[] position, double distance, double detectionAngle, WallType wallType, double confidence) {
-            this.position = position;
-            this.distance = distance;
-            this.detectionAngle = detectionAngle;
-            this.wallType = wallType;
-            this.confidence = confidence;
-        }
-    }
-
-    private enum GET_XY {
-        GET_X,
-        GET_Y
-    }
-
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
 
         // math only takes radians
         current_angle_degree = this.gyro.getAngle() % 360;
+        if (current_angle_degree<0) current_angle_degree += 360;
         current_angle_radian = Math.toRadians(current_angle_degree);
 
         SmartDashboard.putNumber("gyro", current_angle_radian);
@@ -84,7 +59,7 @@ public class PositionGetterSubsystem extends SubsystemBase {
         // process all sonic's estimation on the robot's position based on the object detected
         calculateSonicPosition();
 
-        // estimate robot position based on
+        // estimate robot position based on the sonic's readings
         estimated_robot_position();
     }
 
@@ -100,17 +75,11 @@ public class PositionGetterSubsystem extends SubsystemBase {
                 continue;
             }
 
-            classifyWallhacks(sonic, xy);
-
             SmartDashboard.putNumber(String.join(" ", name, "sonic: X"), xy[0]);
             SmartDashboard.putNumber(String.join(" ", name, "sonic: Y"), xy[1]);
 
             insertPosition(name, xy);
         }
-    }
-
-    private void classifyWallhacks(UltrasonicSubsystem sonic, double[] xy) {
-        UltrasonicSide side = sonic.getSide(); 
     }
 
     private void insertPosition(String name, double[] position) {
@@ -139,27 +108,82 @@ public class PositionGetterSubsystem extends SubsystemBase {
 
         List<double[]> front = recent_positions.get("FRONT");
 
-        output_y = listXy2Xy(front, GET_XY.GET_Y);
+        output_y = positionListGetXY(front, GET_XY.GET_Y);
 
         List<double[]> left_front  = recent_positions.get("LEFT_FRONT");
         List<double[]> left_back   = recent_positions.get("LEFT_BACK");
         List<double[]> right_front = recent_positions.get("RIGHT_FRONT");
         List<double[]> right_back  = recent_positions.get("RIGHT_BACK");
 
-        double left_front_x  = listXy2Xy(left_front,  GET_XY.GET_X);
-        double left_back_x   = listXy2Xy(left_back,   GET_XY.GET_X);
-        double right_front_x = listXy2Xy(right_front, GET_XY.GET_X);
-        double right_back_x  = listXy2Xy(right_back,  GET_XY.GET_X);
+        double left_front_x  = positionListGetXY(left_front,  GET_XY.GET_X);
+        double left_back_x   = positionListGetXY(left_back,   GET_XY.GET_X);
+        double right_front_x = positionListGetXY(right_front, GET_XY.GET_X);
+        double right_back_x  = positionListGetXY(right_back,  GET_XY.GET_X);
 
-        if (Math.abs(left_front_x-left_back_x) < WALL_TOLERANCE) {
+        // Calculate Y positions to check if object is parallel
+        double left_front_y = positionListGetXY(left_front, GET_XY.GET_Y);
+        double left_back_y = positionListGetXY(left_back, GET_XY.GET_Y);
+        double right_front_y = positionListGetXY(right_front, GET_XY.GET_Y);
+        double right_back_y = positionListGetXY(right_back, GET_XY.GET_Y);
 
+        double left_x = -1;
+        double right_x = -1;
+    
+        // Check left side readings
+        if (Math.abs(left_front_x - left_back_x) < OBJECT_DETECTION_TOLERANCE) {
+            // Additional checks for wall vs object
+            double y_diff = Math.abs(left_front_y - left_back_y);
+            double expected_y_diff = Math.abs(UltrasonicConstants.UltrasonicSide.LEFT_FRONT.getOffset()[1] - 
+                                            UltrasonicConstants.UltrasonicSide.LEFT_BACK.getOffset()[1]);
+            
+            // If Y difference matches expected sensor offset (accounting for some tolerance)
+            if (Math.abs(y_diff - expected_y_diff) < OBJECT_DETECTION_TOLERANCE) {
+                left_x = (left_front_x + left_back_x) / 2;
+            }
         }
-        if (Math.abs(right_front_x-right_back_x) < WALL_TOLERANCE) {
-
+    
+        // Check right side readings
+        if (Math.abs(right_front_x - right_back_x) < OBJECT_DETECTION_TOLERANCE) {
+            double y_diff = Math.abs(right_front_y - right_back_y);
+            double expected_y_diff = Math.abs(UltrasonicConstants.UltrasonicSide.RIGHT_FRONT.getOffset()[1] - 
+                                            UltrasonicConstants.UltrasonicSide.RIGHT_BACK.getOffset()[1]);
+            
+            if (Math.abs(y_diff - expected_y_diff) < OBJECT_DETECTION_TOLERANCE) {
+                right_x = (right_front_x + right_back_x) / 2;
+            }
         }
+    
+        // Calculate final X position
+        if (left_x != -1 && right_x != -1) {
+            output_x = (left_x + right_x) / 2;
+        } else if (left_x != -1) {
+            output_x = left_x;
+        } else if (right_x != -1) {
+            output_x = right_x;
+        }
+    
+        // Update position if we have valid readings
+        if (output_x != -1 && output_y != -1) {
+            if (is_first_estimate) {
+                estimated_robot_position = new double[]{output_x, output_y};
+                is_first_estimate = false;
+            } else {
+                // Apply smoothing
+                estimated_robot_position[0] = SMOOTHING_FACTOR * estimated_robot_position[0] + (1 - SMOOTHING_FACTOR) * output_x;
+                estimated_robot_position[1] = SMOOTHING_FACTOR * estimated_robot_position[1] + (1 - SMOOTHING_FACTOR) * output_y;
+            }
+        }
+    
+        // Update dashboard
+        SmartDashboard.putNumber("Estimated X", estimated_robot_position[0]);
+        SmartDashboard.putNumber("Estimated Y", estimated_robot_position[1]);
     }
 
-    private double listXy2Xy(List<double[]> l, GET_XY get) {
+    private enum GET_XY {
+        GET_X,
+        GET_Y
+    }
+    private double positionListGetXY(List<double[]> l, GET_XY get) {
         if (l==null || l.size() < 2) return -1;
 
         int index = (get == GET_XY.GET_Y)? 1: 0; 
