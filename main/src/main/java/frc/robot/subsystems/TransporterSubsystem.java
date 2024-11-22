@@ -23,6 +23,7 @@ public class TransporterSubsystem extends SubsystemBase {
   
   public TransporterSubsystem() {
     m_transporter     = new WPI_VictorSPX(TransporterConstants.TRANSPORTER_MOTOR_ID);
+    m_transporter.setInverted(true);
 
     m_transporter.config_kP(0, 0.1);
     m_transporter.config_kI(0, 0.01);

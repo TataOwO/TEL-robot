@@ -13,6 +13,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.LoadCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.StoreCommand;
 import frc.robot.commands.TransportDirectionCommand;
 import frc.robot.subsystems.*;
 
@@ -56,7 +57,7 @@ public class RobotContainer {
 
   // STORAGE
   private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
-  // private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageSide.RIGHT);
+  private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageSide.RIGHT);
 
   // ULTRASONICS
   private final PositionGetterSubsystem m_position_getter_subsystem = new PositionGetterSubsystem(gyro, new UltrasonicSubsystem[] {
@@ -91,24 +92,26 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // shooter
+    // y => shooter
     m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
 
-    TransportDirectionCommand dir_shoot_command = new TransportDirectionCommand(m_transport_dir_subsystem, true);
-    TransportDirectionCommand dir_load_command = new TransportDirectionCommand(m_transport_dir_subsystem, false);
+    // a => transport dir
+    TransportDirectionCommand transport_dir_shoot_command = new TransportDirectionCommand(m_transport_dir_subsystem, true);
+    TransportDirectionCommand transport_dir_load_command = new TransportDirectionCommand(m_transport_dir_subsystem, false);
+    LoadCommand load_command = new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem);
 
     m_driverController.a().toggleOnTrue(Commands.sequence(
-      dir_load_command,
-      Commands.parallel(
-        new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem)
-
+      transport_dir_load_command,
+      Commands.race(  
+        Commands.parallel(
+          load_command
+        ),
+        new StoreCommand(m_left_storage_subsystem, m_right_storage_subsystem)
       ),
-      dir_shoot_command
+      transport_dir_shoot_command
     ));
 
-    m_driverController.b().onTrue (m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(0.4)));
-    m_driverController.b().onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
-
+    // pov => transport dir
     // m_driverController.povDown().onTrue(m_transport_dir_subsystem.run(()->{
     //   m_transport_dir_subsystem.setShoot();
     //   m_transport_dir_subsystem.setRunDirection();
@@ -119,30 +122,37 @@ public class RobotContainer {
     // }));
     // m_driverController.povDown().or(m_driverController.povUp()).onFalse(m_transport_dir_subsystem.run(()->m_transport_dir_subsystem.stopDirection()));
 
-    // if (m_driverController.start().getAsBoolean()) {
-    //   m_transport_dir_subsystem.setLoad();
-    //   m_transport_dir_subsystem.setRunDirection();
-    // } else {
-    //   m_transport_dir_subsystem.stopDirection();
-    // }
-    
-    // transporter
-    m_driverController.x().onTrue(m_transporter_subsystem.transportCommand(-0.4));
+    // back => reset robot pos estimation
+    m_driverController.back().toggleOnTrue(m_position_getter_subsystem.run(()->{
+      m_position_getter_subsystem.resetRobotEstimation();
+    }));
+
+    // b => storage (WIP)
+    m_driverController.b().onTrue (m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(0.4)));
+    m_driverController.b().onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
+
+    // x => transport
+    m_driverController.x().onTrue(m_transporter_subsystem.transportCommand(TransporterConstants.TRANSPORTER_ROTATION_SPEED));
     m_driverController.x().onFalse(m_transporter_subsystem.stopTransportCommand());
 
     AimCommand turnLeft  = new AimCommand(m_drive_subsystem, gyro, -90);
     AimCommand turnRight = new AimCommand(m_drive_subsystem, gyro, +90);
 
     // drive movement (WIP)
-    // m_driverController.back(). toggleOnTrue(new TransportDirectionCommand(m_transport_dir_subsystem, false, m_driverController.back())) ;
-    // m_driverController.start().toggleOnTrue(new TransportDirectionCommand(m_transport_dir_subsystem, true,  m_driverController.start()));
+    // turn left
+    // turn right
 
     // drive movement
-    m_drive_subsystem.setDefaultCommand(m_drive_subsystem.run(() -> m_drive_subsystem.drive(
-      m_driverController.getLeftY(),
-      m_driverController.getLeftX(),
-      -m_driverController.getRightX()
-    )));
+    m_drive_subsystem.setDefaultCommand(m_drive_subsystem.run(() -> {
+      double left_y = m_driverController.getLeftY();
+      double left_x = m_driverController.getLeftX();
+      double right_x = m_driverController.getRightX();
+      m_drive_subsystem.drive(
+        Math.abs(left_y )>0.1?  left_y:  0,
+        Math.abs(left_x )>0.1?  left_x:  0,
+        Math.abs(right_x)>0.1? -right_x: 0
+      );
+    }));
 
     // drive change speed modifier
     m_driverController.leftBumper()

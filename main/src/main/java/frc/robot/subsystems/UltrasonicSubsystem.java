@@ -8,11 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import javax.sound.midi.Soundbank;
-
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -34,8 +31,11 @@ public class UltrasonicSubsystem extends SubsystemBase {
   private final double MIN_VALID_DISTANCE = 30;  // 3 cm
   private final double KALMAN_GAIN = 0.5;
 
-  private final ArrayList<Double> recent_readings = new ArrayList<>();
+  private final List<Double> recent_readings = new ArrayList<>();
   private int readings_size = 0;
+
+  private double raw_distance;
+  private double processed_distance;
 
   /** Creates a new UltrasonicSubsystem. */
   public UltrasonicSubsystem(UltrasonicSide side) {
@@ -48,9 +48,57 @@ public class UltrasonicSubsystem extends SubsystemBase {
     Ultrasonic.setAutomaticMode(true);
   }
 
-  private double getProcessedRangeMM() {
-    double raw_distance = getRangeMM();
+  public UltrasonicSide getSide() {
+    return this.m_side;
+  }
 
+  public double getRawMM() {
+    return this.raw_distance;
+  }
+
+  public double getProcessedMM() {
+    return this.processed_distance;
+  }
+
+  public double[] calculatePosition(double current_angle_radian) { // TODO: TEST THIS CODE
+    // distance between ultrasonic and the center
+    double base_x = -Math.sin(current_angle_radian);
+    double base_y =  Math.cos(current_angle_radian);
+
+    double sonic_angle_r = Math.toRadians(m_side.getBaseAngle()) + current_angle_radian;
+
+    if (processed_distance == -1) return new double[] {-1};
+
+    // distance between ultrasonic and object
+    double distance_x = -Math.sin(sonic_angle_r) * processed_distance;
+    double distance_y =  Math.cos(sonic_angle_r) * processed_distance;
+
+    return new double[] {base_x+distance_x, -base_y-distance_y};
+  }
+
+  public void clear() {
+    recent_readings.clear();
+    readings_size = 0;
+  }
+
+  @Override
+  public void periodic() {
+    raw_distance = this.getRangeMM();
+    processed_distance = this.getProcessedRangeMM();
+
+    // This method will be called once per scheduler run
+    String name = this.getSide().name();
+    SmartDashboard.putBoolean(String.join(" ", name, "ultrasonic valid"), this.ultrasonic.isRangeValid());
+    SmartDashboard.putNumber(String.join(" ", name, "ultrasonic raw mm"), raw_distance);
+    SmartDashboard.putNumber(String.join(" ", name, "ultrasonic processed mm"), processed_distance);
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    // This method will be called once per scheduler run during simulation
+  }
+
+  private double getProcessedRangeMM() {
     // check if distance out of range
     if (raw_distance < MIN_VALID_DISTANCE) return -1;
     if (raw_distance > MAX_VALID_DISTANCE) return -1;
@@ -94,40 +142,5 @@ public class UltrasonicSubsystem extends SubsystemBase {
 
   private double getRangeMM() {
     return this.ultrasonic.getRangeMM();
-  }
-
-  public UltrasonicSide getSide() {
-    return this.m_side;
-  }
-
-  public double[] calculatePosition(double current_angle_radian) { // TODO: TEST THIS CODE
-    // distance between ultrasonic and the center
-    double base_x = -Math.sin(current_angle_radian);
-    double base_y =  Math.cos(current_angle_radian);
-
-    double sonic_angle_r = Math.toRadians(m_side.getBaseAngle()) + current_angle_radian;
-
-    double distance = this.getProcessedRangeMM();
-
-    if (distance == -1) return new double[] {-1};
-
-    // distance between ultrasonic and object
-    double distance_x = -Math.sin(sonic_angle_r) * distance;
-    double distance_y =  Math.cos(sonic_angle_r) * distance;
-
-    return new double[] {base_x+distance_x, -base_y-distance_y};
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    String name = this.getSide().name();
-    SmartDashboard.putBoolean(String.join(" ", name, "ultrasonic valid"), this.ultrasonic.isRangeValid());
-    SmartDashboard.putNumber(String.join(" ", name, "ultrasonic range mm"), this.getRangeMM());
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
   }
 }

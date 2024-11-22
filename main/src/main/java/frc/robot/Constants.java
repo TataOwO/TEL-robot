@@ -29,8 +29,8 @@ public final class Constants {
   }
 
   public static class TransporterConstants {
-    public static final double TRANSPORTER_ROTATION_SPEED = 1;
-    public static final double DIRECTION_ROTATION_SPEED = 0.4;
+    public static final double TRANSPORTER_ROTATION_SPEED = 0.4;
+    public static final double DIRECTION_ROTATION_SPEED = 0.6;
 
     public static final int TRANSPORTER_MOTOR_ID = 11;
     public static final int DIRECTION_MOTOR_ID = 12;
@@ -40,6 +40,8 @@ public final class Constants {
   }
 
   public static class StorageConstants {
+    public static final double STORAGE_RPM = 100;
+
     public static enum StorageSide {
       RIGHT (2, 0),
       LEFT  (41, 0);

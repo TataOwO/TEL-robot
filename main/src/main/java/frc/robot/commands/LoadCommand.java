@@ -15,6 +15,8 @@ public class LoadCommand extends Command {
 
     private LoaderSubsystem m_loader;
 
+    private boolean is_left = false;
+
     private final Timer timer = new Timer();
 
     public LoadCommand(LoaderSubsystem left_loader, LoaderSubsystem right_loader) {
@@ -22,6 +24,10 @@ public class LoadCommand extends Command {
         this.m_right_loader = right_loader;
     }
     
+    public boolean isLeftLoader() {
+        return this.is_left;
+    }
+
     @Override
     public void initialize() {
         final int right_disc_count = this.m_right_loader.getDiscCount();
@@ -30,9 +36,11 @@ public class LoadCommand extends Command {
         if (left_disc_count < right_disc_count) {
             // m_storage = right_storage;
             m_loader  = this.m_right_loader;
+            is_left = false;
         } else {
             // m_storage = left_storage;
             m_loader  = this.m_left_loader;
+            is_left = true;
         }
 
         timer.reset();

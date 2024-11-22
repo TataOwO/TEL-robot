@@ -53,13 +53,11 @@ public class StorageSubsystem extends SubsystemBase {
   }
 
   public void setStore(double RPS) {
-    // motor_pid.setReference(RPS, ControlType.kVelocity);
-    m_motor.set(-0.4);
+    motor_pid.setReference(RPS, ControlType.kVelocity);
   }
 
   public void stop() {
-    m_motor.set(0);
-    // motor_pid.setReference(0, ControlType.kVelocity);
+    motor_pid.setReference(0, ControlType.kVelocity);
   }
 
   /**
@@ -69,7 +67,7 @@ public class StorageSubsystem extends SubsystemBase {
    */
   public boolean buttonPressed() {
     // return m_button.get();
-    return false;
+    return true;
   }
 
   @Override
