@@ -16,19 +16,15 @@ import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StoreCommand;
 import frc.robot.commands.TransportDirectionCommand;
 import frc.robot.subsystems.*;
-
-import java.util.function.BooleanSupplier;
+import frc.robot.utility.CustomXboxController;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -42,7 +38,7 @@ public class RobotContainer {
   private final Pigeon2 gyro = new Pigeon2(OperatorConstants.GYRO_PORT);
 
   // DRIVE
-  private final MecanumDriveSubsystem m_drive_subsystem = new MecanumDriveSubsystem();
+  // private final MecanumDriveSubsystem m_drive_subsystem = new MecanumDriveSubsystem();
 
   // SHOOTER
   private final ShooterSubsystem m_shooter_subsystem = new ShooterSubsystem();
@@ -53,7 +49,7 @@ public class RobotContainer {
 
   // TRANSPORT
   private final TransporterSubsystem m_transporter_subsystem = new TransporterSubsystem();
-  public final TransportDirectionSubsystem m_transport_dir_subsystem = new TransportDirectionSubsystem();
+  private final TransportDirectionSubsystem m_transport_dir_subsystem = new TransportDirectionSubsystem();
 
   // STORAGE
   private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
@@ -67,8 +63,8 @@ public class RobotContainer {
   });
 
   // CONTROLLER
-  public CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+  private CustomXboxController m_driverController =
+      new CustomXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -79,7 +75,7 @@ public class RobotContainer {
 
     SmartDashboard.putNumber("shooter speed", 100);
     SmartDashboard.putNumber("shooter support speed", 0.4);
-    SmartDashboard.putNumber("transport dir", 0.4);
+    SmartDashboard.putNumber("transport dir", TransporterConstants.DIRECTION_ROTATION_SPEED);
   }
 
   /**
@@ -98,18 +94,28 @@ public class RobotContainer {
     // a => transport dir
     TransportDirectionCommand transport_dir_shoot_command = new TransportDirectionCommand(m_transport_dir_subsystem, true);
     TransportDirectionCommand transport_dir_load_command = new TransportDirectionCommand(m_transport_dir_subsystem, false);
-    LoadCommand load_command = new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem);
+    LoadCommand load_command = new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem, m_transporter_subsystem);
+    // StoreCommand store_command = new StoreCommand(new StorageSubsystem[] {m_right_storage_subsystem});
 
     m_driverController.a().toggleOnTrue(Commands.sequence(
-      transport_dir_load_command,
-      Commands.race(  
-        Commands.parallel(
-          load_command
-        ),
-        new StoreCommand(m_left_storage_subsystem, m_right_storage_subsystem)
+      Commands.race(
+        transport_dir_load_command
+        // store_command
+      ),
+      Commands.parallel(  
+        load_command
+        // store_command
       ),
       transport_dir_shoot_command
     ));
+
+    m_driverController.start().toggleOnTrue(m_right_storage_subsystem.run(()->m_right_storage_subsystem.setStore(StorageConstants.STORAGE_RPM)));
+    m_driverController.back().toggleOnTrue(m_right_storage_subsystem.run(()->m_right_storage_subsystem.setStore(StorageConstants.REVERSE_RPM)));
+    m_driverController.start().or(m_driverController.back()).onFalse(m_right_storage_subsystem.run(()->m_right_storage_subsystem.stop()));
+
+    m_driverController.povUp().toggleOnTrue(m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(StorageConstants.STORAGE_RPM)));
+    m_driverController.povDown().toggleOnTrue(m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(StorageConstants.REVERSE_RPM)));
+    m_driverController.povUp().or(m_driverController.povDown()).onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
 
     // pov => transport dir
     // m_driverController.povDown().onTrue(m_transport_dir_subsystem.run(()->{
@@ -128,37 +134,34 @@ public class RobotContainer {
     }));
 
     // b => storage (WIP)
-    m_driverController.b().onTrue (m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(0.4)));
-    m_driverController.b().onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
+    // m_driverController.b().onTrue (m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(0.4)));
+    // m_driverController.b().onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
 
     // x => transport
-    m_driverController.x().onTrue(m_transporter_subsystem.transportCommand(TransporterConstants.TRANSPORTER_ROTATION_SPEED));
-    m_driverController.x().onFalse(m_transporter_subsystem.stopTransportCommand());
+    m_driverController.x().toggleOnTrue(m_transporter_subsystem.transportCommand());
+    m_driverController.x().toggleOnFalse(m_transporter_subsystem.stopTransportCommand());
 
-    AimCommand turnLeft  = new AimCommand(m_drive_subsystem, gyro, -90);
-    AimCommand turnRight = new AimCommand(m_drive_subsystem, gyro, +90);
+    // AimCommand turnLeft  = new AimCommand(m_drive_subsystem, gyro, -90);
+    // AimCommand turnRight = new AimCommand(m_drive_subsystem, gyro, +90);
 
     // drive movement (WIP)
     // turn left
     // turn right
 
+    /*
     // drive movement
-    m_drive_subsystem.setDefaultCommand(m_drive_subsystem.run(() -> {
-      double left_y = m_driverController.getLeftY();
-      double left_x = m_driverController.getLeftX();
-      double right_x = m_driverController.getRightX();
-      m_drive_subsystem.drive(
-        Math.abs(left_y )>0.1?  left_y:  0,
-        Math.abs(left_x )>0.1?  left_x:  0,
-        Math.abs(right_x)>0.1? -right_x: 0
-      );
-    }));
+    m_drive_subsystem.setDefaultCommand(m_drive_subsystem.run(() -> m_drive_subsystem.drive(
+      m_driverController.getLeftY(),
+      m_driverController.getLeftX(),
+      -m_driverController.getRightX()
+    )));
+    */
 
     // drive change speed modifier
-    m_driverController.leftBumper()
-      .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.decreaseSpeed()));
-    m_driverController.rightBumper()
-      .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.increaseSpeed()));
+    // m_driverController.leftBumper()
+    //   .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.decreaseSpeed()));
+    // m_driverController.rightBumper()
+    //   .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.increaseSpeed()));
   }
 
   /**

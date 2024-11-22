@@ -54,6 +54,6 @@ public class TransportDirectionCommand extends Command {
             // this.isShootAngle  && m_transport_dir.isReadyShoot() ||
             // or if we're trying to load and it's ready to load
             // !this.isShootAngle && m_transport_dir.isReadyLoad() ||
-            this.timer.get() > 0.8;
+            this.timer.get() > 1.1;
     }
 }

@@ -73,7 +73,7 @@ public class PositionGetterSubsystem extends SubsystemBase {
         if (current_angle_degree<0) current_angle_degree += 360;
         current_angle_radian = Math.toRadians(current_angle_degree);
 
-        SmartDashboard.putNumber("gyro", current_angle_radian);
+        SmartDashboard.putNumber("gyro", current_angle_degree);
 
         // process all sonic's estimation on the robot's position based on the object detected
         calculateSonicPosition();
@@ -121,6 +121,10 @@ public class PositionGetterSubsystem extends SubsystemBase {
 
     private void estimated_robot_position() {
         if (this.current_angle_degree > 45 || this.current_angle_degree < 315) return;
+
+        System.out.println(estimated_robot_position);
+        System.out.println(estimation_confidence);
+        System.out.println();
 
         double output_x = -1;
         double output_y = -1;

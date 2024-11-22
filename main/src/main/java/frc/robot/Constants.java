@@ -30,17 +30,20 @@ public final class Constants {
 
   public static class TransporterConstants {
     public static final double TRANSPORTER_ROTATION_SPEED = 0.4;
+    public static final double TRANSPORTER_LOAD_SPEED = -0.3;
     public static final double DIRECTION_ROTATION_SPEED = 0.6;
 
     public static final int TRANSPORTER_MOTOR_ID = 11;
     public static final int DIRECTION_MOTOR_ID = 12;
 
-    public static final int TOP_BUTTON_PIN = 0;
-    public static final int BOT_BUTTON_PIN = 0;
+    public static final int DIRECTION_BUTTON_PIN = 0;
+    public static final int DISC_IN_BUTTON_PIN = 0;
+    public static final int DISC_READY_BUTTON_PIN = 0;
   }
 
   public static class StorageConstants {
-    public static final double STORAGE_RPM = 100;
+    public static final double STORAGE_RPM = 70;
+    public static final double REVERSE_RPM = -20;
 
     public static enum StorageSide {
       RIGHT (2, 0),
@@ -65,7 +68,7 @@ public final class Constants {
   }
 
   public static class LoaderConstants {
-    public static final double LOADER_SPEED = 0.4;
+    public static final double LOADER_SPEED = 0.8;
 
     public static final int FRONT_LOADER_MOTOR_ID = 7;
     public static final int LEFT_LOADER_MOTOR_ID = 13;
@@ -99,7 +102,7 @@ public final class Constants {
       BACK       (0, 1, 180, 0, 0),
       LEFT_FRONT (7, 6, -90, -291, -22),
       LEFT_BACK  (0, 1, -90, 0, 0),
-      RIGHT_FRONT(9, 8, 90, 291, -96),
+      RIGHT_FRONT(9, 8, 90, 252, -35),
       RIGHT_BACK (0, 1, 90, 0, 0);
 
       private final int trig_channel;

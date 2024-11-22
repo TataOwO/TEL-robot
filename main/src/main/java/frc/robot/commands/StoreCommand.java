@@ -11,16 +11,12 @@ import frc.robot.subsystems.TransportDirectionSubsystem;
 public class StoreCommand extends Command {
     // private final StorageSubsystem m_storage;
 
-    private final StorageSubsystem m_left_storage;
-    private final StorageSubsystem m_right_storage;
-
-    private LoaderSubsystem m_storage;
+    private final StorageSubsystem[] m_storages;
 
     private final Timer timer = new Timer();
 
-    public StoreCommand(StorageSubsystem left_loader, StorageSubsystem right_loader) {
-        this.m_left_storage = left_loader;
-        this.m_right_storage = right_loader;
+    public StoreCommand(StorageSubsystem[] storages) {
+        m_storages = storages;
     }
     
     @Override
@@ -31,18 +27,18 @@ public class StoreCommand extends Command {
 
     @Override
     public void execute() {
-        if (m_left_storage.buttonPressed()) m_left_storage.stop();
-        else m_left_storage.setStore(Constants.StorageConstants.STORAGE_RPM);
-
-        if (m_right_storage.buttonPressed()) m_right_storage.stop();
-        else m_right_storage.setStore(Constants.StorageConstants.STORAGE_RPM);
+        for (StorageSubsystem storage : m_storages) {
+            if (storage.buttonPressed()) storage.stop();
+            else storage.setStore(Constants.StorageConstants.STORAGE_RPM);
+        }
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        m_left_storage.stop();
-        m_right_storage.stop();
+        for (StorageSubsystem storage : m_storages) {
+            if (storage.buttonPressed()) storage.stop();
+        }
     }
 
     // Returns true when the command should end.

@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.TransporterSubsystem;
+import frc.robot.Constants.TransporterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -52,16 +53,16 @@ public class ShootCommand extends Command {
         shooter_speed,
         support_speed
       );
-      transport_subsystem.stopTransport();
+      transport_subsystem.stop();
     } else if (current_time < 2.5) {
       shooter_subsystem.shoot(
         shooter_speed,
         support_speed
       );
-      transport_subsystem.transport(0.4);
+      transport_subsystem.transport();
     } else if (current_time >= 2.5) {
       shooter_subsystem.stop();
-      transport_subsystem.stopTransport();
+      transport_subsystem.stop();
     }
   }
 
@@ -69,7 +70,7 @@ public class ShootCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     shooter_subsystem.stop();
-    transport_subsystem.stopTransport();
+    transport_subsystem.stop();
   }
 
   // Returns true when the command should end.

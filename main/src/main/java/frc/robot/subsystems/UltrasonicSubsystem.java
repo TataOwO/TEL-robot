@@ -88,8 +88,6 @@ public class UltrasonicSubsystem extends SubsystemBase {
 
     // This method will be called once per scheduler run
     String name = this.getSide().name();
-    SmartDashboard.putBoolean(String.join(" ", name, "ultrasonic valid"), this.ultrasonic.isRangeValid());
-    SmartDashboard.putNumber(String.join(" ", name, "ultrasonic raw mm"), raw_distance);
     SmartDashboard.putNumber(String.join(" ", name, "ultrasonic processed mm"), processed_distance);
   }
 
