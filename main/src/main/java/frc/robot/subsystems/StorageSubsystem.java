@@ -32,9 +32,10 @@ public class StorageSubsystem extends SubsystemBase {
 
     motor_pid = m_motor.getPIDController();
 
-    motor_pid.setP(0.0001);
-    motor_pid.setI(0);
-    motor_pid.setD(0);
+    // motor_pid.setP(0.005);
+    // motor_pid.setI(0);
+    // motor_pid.setD(0);
+    // motor_pid.setFF(0);
     // m_button = new DigitalOutput(side.getButtonId());
   }
 
@@ -52,12 +53,14 @@ public class StorageSubsystem extends SubsystemBase {
         });
   }
 
-  public void setStore(double RPS) {
-    motor_pid.setReference(RPS, ControlType.kVelocity);
+  public void setStore(double speed) {
+    // motor_pid.setReference(speed, ControlType.kCurrent);
+    m_motor.set(speed);
   }
 
   public void stop() {
-    motor_pid.setReference(0, ControlType.kVelocity);
+    // motor_pid.setReference(0, ControlType.kCurrent);
+    m_motor.set(0);
   }
 
   /**
@@ -67,7 +70,7 @@ public class StorageSubsystem extends SubsystemBase {
    */
   public boolean buttonPressed() {
     // return m_button.get();
-    return true;
+    return false;
   }
 
   @Override

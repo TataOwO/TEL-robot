@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
@@ -13,6 +17,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -30,6 +35,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private StatusCode shooter_status = StatusCode.StatusCodeNotInitialized;
 
+  private Map<String, Boolean> grid = new HashMap<>() {{
+    put("TL goal", false);
+    put("TC goal", false);
+    put("TR goal", false);
+    put("CL goal", false);
+    put("CC goal", true);
+    put("CR goal", false);
+    put("BL goal", false);
+    put("BC goal", false);
+    put("BR goal", false);
+  }};
+
   public ShooterSubsystem() {
     shooter_configs.Slot0.kP = 0.1;
     shooter_configs.Slot0.kI = 0.01;
@@ -45,6 +62,10 @@ public class ShooterSubsystem extends SubsystemBase {
     if (!shooter_status.isOK()) System.out.println("An error occured at shooter subsystem: " + shooter_status.toString());
 
     shooter_velocity = m_shooter.getVelocity();
+    
+    for (Entry<String, Boolean> key: grid.entrySet()) {
+      SmartDashboard.putBoolean(key.getKey(), key.getValue());
+    }
   }
 
   /**
@@ -89,6 +110,27 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     shooter_velocity.refresh();
+
+    for (Entry<String, Boolean> key: grid.entrySet()) {
+      String name = key.getKey();
+      boolean val = key.getValue();
+
+      boolean new_val = SmartDashboard.getBoolean(name, val);
+
+      if (val && !new_val) {
+        SmartDashboard.putBoolean(name, true);
+      } else if (new_val && !val) {
+        for (Entry<String, Boolean> n_key: grid.entrySet()) {
+          String n_name = n_key.getKey();
+          if (grid.get(n_name)) {
+            grid.put(n_name, false);
+            SmartDashboard.putBoolean(n_name, false);
+            break;
+          }
+        }
+        grid.put(name, true);
+      }
+    }
   }
 
   @Override

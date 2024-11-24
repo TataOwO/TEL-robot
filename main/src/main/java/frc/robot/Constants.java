@@ -37,13 +37,11 @@ public final class Constants {
     public static final int DIRECTION_MOTOR_ID = 12;
 
     public static final int DIRECTION_BUTTON_PIN = 0;
-    public static final int DISC_IN_BUTTON_PIN = 0;
-    public static final int DISC_READY_BUTTON_PIN = 0;
   }
 
   public static class StorageConstants {
-    public static final double STORAGE_RPM = 70;
-    public static final double REVERSE_RPM = -20;
+    public static final double STORAGE_RPM = 0.2;
+    public static final double REVERSE_RPM = -0.2;
 
     public static enum StorageSide {
       RIGHT (2, 0),
@@ -98,9 +96,9 @@ public final class Constants {
   public static class UltrasonicConstants {
     public static enum UltrasonicSide {
       TEST       (0, 1, 0, -7, 20),
-      FRONT      (5, 4, 0, 21, 0),
+      FRONT      (5, 4, 0, 0, 62),
       BACK       (0, 1, 180, 0, 0),
-      LEFT_FRONT (7, 6, -90, -291, -22),
+      LEFT_FRONT (7, 6, -90, -329, -40),
       LEFT_BACK  (0, 1, -90, 0, 0),
       RIGHT_FRONT(9, 8, 90, 252, -35),
       RIGHT_BACK (0, 1, 90, 0, 0);

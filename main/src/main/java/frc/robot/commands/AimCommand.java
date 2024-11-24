@@ -40,9 +40,8 @@ public class AimCommand extends Command {
     addRequirements(m_drive);
 
     this.gyro = gyro;
-    // this.gyro.reset();
 
-    this.target_degree = target_degree;
+    this.target_degree = gyro.getAngle() + target_degree;
   }
 
   // Called when the command is initially scheduled.

@@ -32,6 +32,8 @@ public class TransporterSubsystem extends SubsystemBase {
     m_transporter.config_kP(0, 0.1);
     m_transporter.config_kI(0, 0.01);
     m_transporter.config_kD(0, 0.0);
+
+    SmartDashboard.putNumber("transport speed", this.transport_speed);
   }
 
   /**
@@ -67,7 +69,8 @@ public class TransporterSubsystem extends SubsystemBase {
    * @param speed rotation per second
    */
   public void transport() {
-    m_transporter.set(this.transport_speed);
+    double speed = SmartDashboard.getNumber("transport speed", this.transport_speed);
+    m_transporter.set(speed);
   }
 
   public void stop() {

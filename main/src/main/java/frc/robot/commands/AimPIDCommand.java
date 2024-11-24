@@ -38,15 +38,15 @@ public class AimPIDCommand extends Command {
     addRequirements(m_drive);
 
     this.gyro = gyro;
-    this.gyro.reset();
+    // this.gyro.reset();
 
-    this.target_degree = target_degree;
+    this.target_degree = gyro.getAngle() + target_degree;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    this.gyro.reset();
+    // this.gyro.reset();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

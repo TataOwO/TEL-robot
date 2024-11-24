@@ -9,13 +9,12 @@ import frc.robot.Constants.StorageConstants.StorageSide;
 import frc.robot.Constants.UltrasonicConstants.UltrasonicSide;
 import frc.robot.commands.AimPIDCommand;
 import frc.robot.commands.AimCommand;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.LoadCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StoreCommand;
 import frc.robot.commands.TransportDirectionCommand;
 import frc.robot.subsystems.*;
+import frc.robot.utility.CustomGyro;
 import frc.robot.utility.CustomXboxController;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -35,10 +34,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotContainer {
   // GRYO
-  private final Pigeon2 gyro = new Pigeon2(OperatorConstants.GYRO_PORT);
+  private final CustomGyro gyro = new CustomGyro(OperatorConstants.GYRO_PORT);
 
   // DRIVE
-  // private final MecanumDriveSubsystem m_drive_subsystem = new MecanumDriveSubsystem();
+  private final MecanumDriveSubsystem m_drive_subsystem = new MecanumDriveSubsystem();
 
   // SHOOTER
   private final ShooterSubsystem m_shooter_subsystem = new ShooterSubsystem();
@@ -74,8 +73,6 @@ public class RobotContainer {
     gyro.reset();
 
     SmartDashboard.putNumber("shooter speed", 100);
-    SmartDashboard.putNumber("shooter support speed", 0.4);
-    SmartDashboard.putNumber("transport dir", TransporterConstants.DIRECTION_ROTATION_SPEED);
   }
 
   /**
@@ -91,31 +88,32 @@ public class RobotContainer {
     // y => shooter
     m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
 
+    StorageSubsystem[] right_storage = new StorageSubsystem[] {m_right_storage_subsystem};
+    StorageSubsystem[] left_storage  = new StorageSubsystem[] {m_left_storage_subsystem};
+
+    // right storage
+    m_driverController.povUp().onTrue(new StoreCommand(right_storage, true));
+    m_driverController.povDown().onTrue(new StoreCommand(right_storage, false));
+
     // a => transport dir
     TransportDirectionCommand transport_dir_shoot_command = new TransportDirectionCommand(m_transport_dir_subsystem, true);
     TransportDirectionCommand transport_dir_load_command = new TransportDirectionCommand(m_transport_dir_subsystem, false);
     LoadCommand load_command = new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem, m_transporter_subsystem);
-    // StoreCommand store_command = new StoreCommand(new StorageSubsystem[] {m_right_storage_subsystem});
 
     m_driverController.a().toggleOnTrue(Commands.sequence(
-      Commands.race(
-        transport_dir_load_command
-        // store_command
+      Commands.parallel(
+        transport_dir_load_command,
+        new StoreCommand(right_storage, true)
       ),
       Commands.parallel(  
-        load_command
-        // store_command
+        load_command,
+        new StoreCommand(right_storage, true)
       ),
-      transport_dir_shoot_command
+      Commands.parallel(  
+        transport_dir_shoot_command,
+        new StoreCommand(right_storage, false)
+      )
     ));
-
-    m_driverController.start().toggleOnTrue(m_right_storage_subsystem.run(()->m_right_storage_subsystem.setStore(StorageConstants.STORAGE_RPM)));
-    m_driverController.back().toggleOnTrue(m_right_storage_subsystem.run(()->m_right_storage_subsystem.setStore(StorageConstants.REVERSE_RPM)));
-    m_driverController.start().or(m_driverController.back()).onFalse(m_right_storage_subsystem.run(()->m_right_storage_subsystem.stop()));
-
-    m_driverController.povUp().toggleOnTrue(m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(StorageConstants.STORAGE_RPM)));
-    m_driverController.povDown().toggleOnTrue(m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(StorageConstants.REVERSE_RPM)));
-    m_driverController.povUp().or(m_driverController.povDown()).onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
 
     // pov => transport dir
     // m_driverController.povDown().onTrue(m_transport_dir_subsystem.run(()->{
@@ -129,17 +127,25 @@ public class RobotContainer {
     // m_driverController.povDown().or(m_driverController.povUp()).onFalse(m_transport_dir_subsystem.run(()->m_transport_dir_subsystem.stopDirection()));
 
     // back => reset robot pos estimation
-    m_driverController.back().toggleOnTrue(m_position_getter_subsystem.run(()->{
+    m_driverController.rightStick().toggleOnTrue(m_position_getter_subsystem.run(()->{
       m_position_getter_subsystem.resetRobotEstimation();
     }));
-
-    // b => storage (WIP)
-    // m_driverController.b().onTrue (m_left_storage_subsystem.run(()->m_left_storage_subsystem.setStore(0.4)));
-    // m_driverController.b().onFalse(m_left_storage_subsystem.run(()->m_left_storage_subsystem.stop()));
 
     // x => transport
     m_driverController.x().toggleOnTrue(m_transporter_subsystem.transportCommand());
     m_driverController.x().toggleOnFalse(m_transporter_subsystem.stopTransportCommand());
+
+    m_driverController.start().onTrue(m_transport_dir_subsystem.run(()->{
+      m_transport_dir_subsystem.setLoad();
+      m_transport_dir_subsystem.setRunDirection();
+    }));
+    m_driverController.back().onTrue(m_transport_dir_subsystem.run(()->{
+      m_transport_dir_subsystem.setShoot();
+      m_transport_dir_subsystem.setRunDirection();
+    }));
+    m_driverController.start().or(m_driverController.back()).toggleOnFalse(m_transport_dir_subsystem.run(()->{
+      m_transport_dir_subsystem.stopDirection();
+    }));
 
     // AimCommand turnLeft  = new AimCommand(m_drive_subsystem, gyro, -90);
     // AimCommand turnRight = new AimCommand(m_drive_subsystem, gyro, +90);
@@ -148,20 +154,18 @@ public class RobotContainer {
     // turn left
     // turn right
 
-    /*
     // drive movement
     m_drive_subsystem.setDefaultCommand(m_drive_subsystem.run(() -> m_drive_subsystem.drive(
       m_driverController.getLeftY(),
       m_driverController.getLeftX(),
       -m_driverController.getRightX()
     )));
-    */
 
     // drive change speed modifier
-    // m_driverController.leftBumper()
-    //   .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.decreaseSpeed()));
-    // m_driverController.rightBumper()
-    //   .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.increaseSpeed()));
+    m_driverController.leftBumper()
+      .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.decreaseSpeed()));
+    m_driverController.rightBumper()
+      .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.increaseSpeed()));
   }
 
   /**

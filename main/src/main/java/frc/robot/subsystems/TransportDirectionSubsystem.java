@@ -31,7 +31,7 @@ public class TransportDirectionSubsystem extends SubsystemBase {
   public TransportDirectionSubsystem() {
     m_direction_motor = new WPI_TalonSRX(TransporterConstants.DIRECTION_MOTOR_ID);
 
-    // m_button = new DigitalOutput(TransporterConstants.TOP_BUTTON_PIN);
+    m_button = new DigitalOutput(TransporterConstants.DIRECTION_BUTTON_PIN);
   }
 
   public void setRunDirection() {
@@ -68,12 +68,13 @@ public class TransportDirectionSubsystem extends SubsystemBase {
   }
 
   public boolean getButton() {
-    // return this.m_button.get();
-    return false;
+    return this.m_button.get();
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    
+  }
 
   @Override
   public void simulationPeriodic() {}

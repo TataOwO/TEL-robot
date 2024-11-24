@@ -12,6 +12,8 @@ public class TransportDirectionCommand extends Command {
 
     private final Timer timer = new Timer();
 
+    private int button_pressed_times = 0;
+
     public TransportDirectionCommand(TransportDirectionSubsystem dir_subsystem, boolean isShootAngle) {
         this.m_transport_dir = dir_subsystem;
         this.isShootAngle = isShootAngle;
@@ -28,19 +30,19 @@ public class TransportDirectionCommand extends Command {
         this.timer.reset();
         this.timer.start();
 
-        System.out.println("Transport dir starts");
+        button_pressed_times = 0;
     }
 
     @Override
     public void execute() {
         this.m_transport_dir.setRunDirection();
+
+        if (m_transport_dir.getButton()) ++button_pressed_times;
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Transport dir ends");
-
         this.m_transport_dir.stopDirection();
 
         this.m_transport_dir.setReady(this.isShootAngle);
@@ -51,9 +53,9 @@ public class TransportDirectionCommand extends Command {
     public boolean isFinished() {
         return
             // if we're trying to shoot and it's ready to shoot
-            // this.isShootAngle  && m_transport_dir.isReadyShoot() ||
+            this.isShootAngle  && this.timer.get() > 1.3 ||
             // or if we're trying to load and it's ready to load
-            // !this.isShootAngle && m_transport_dir.isReadyLoad() ||
-            this.timer.get() > 1.1;
+            !this.isShootAngle && m_transport_dir.getButton()
+           ;
     }
 }

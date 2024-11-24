@@ -16,21 +16,21 @@ public class CustomXboxController extends CommandXboxController {
 
     @Override
     public double getLeftY() {
-        double val = super.getLeftX();
+        double val = super.getLeftY();
         if (val > -0.1 && val < 0.1) val = 0;
         return val;
     }
 
     @Override
     public double getRightX() {
-        double val = super.getLeftX();
+        double val = super.getRightX();
         if (val > -0.1 && val < 0.1) val = 0;
         return val;
     }
 
     @Override
     public double getRightY() {
-        double val = super.getLeftX();
+        double val = super.getRightY();
         if (val > -0.1 && val < 0.1) val = 0;
         return val;
     }

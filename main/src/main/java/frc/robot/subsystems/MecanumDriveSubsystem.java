@@ -65,11 +65,6 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     rear_right_PID = rear_right_motor.getPIDController();
 
     this.resetPID();
-
-    SmartDashboard.putNumber("kP" , position_closed_kP);
-    SmartDashboard.putNumber("kI" , position_closed_kI);
-    SmartDashboard.putNumber("kD" , position_closed_kD);
-    SmartDashboard.putNumber("kFF", position_closed_kFF);
   }
 
   public void driveWheelspeed(MecanumDrive.WheelSpeeds wheel_speeds) {

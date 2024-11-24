@@ -39,7 +39,7 @@ public class PositionGetterSubsystem extends SubsystemBase {
     double current_angle_radian;
 
     public PositionGetterSubsystem(Pigeon2 gyro, UltrasonicSubsystem[] sonicArray) {
-        this.gyro = new Pigeon2(gyro.getDeviceID());
+        this.gyro = gyro;
 
         allSonics = sonicArray;
     }

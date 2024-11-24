@@ -47,7 +47,7 @@ public class LoadCommand extends Command {
         //     is_left = true;
         // }
 
-        m_loader  = this.m_left_loader;
+        m_loader  = this.m_right_loader;
         is_left = true;
 
         timer.reset();

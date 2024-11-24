@@ -20,6 +20,9 @@ public class ShootCommand extends Command {
   private final Timer timer = new Timer();
   private double current_time = 0;
 
+  // top, center, or bottom
+  private int TCB;
+
   /**
    * Creates a new ExampleCommand.
    *
@@ -37,6 +40,10 @@ public class ShootCommand extends Command {
   public void initialize() {
     timer.reset();
     timer.start();
+
+    boolean top    = SmartDashboard.getBoolean("TL goal", false) && SmartDashboard.getBoolean("TC goal", false) && SmartDashboard.getBoolean("TR goal", false);
+    boolean center = SmartDashboard.getBoolean("CL goal", false) && SmartDashboard.getBoolean("CC goal", false) && SmartDashboard.getBoolean("CR goal", false);
+    boolean bottom = SmartDashboard.getBoolean("BL goal", false) && SmartDashboard.getBoolean("BC goal", false) && SmartDashboard.getBoolean("BR goal", false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
