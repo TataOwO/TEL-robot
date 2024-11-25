@@ -26,6 +26,8 @@ public final class Constants {
   public static class ShooterConstants {
     public static final int SHOOTER_MOTOR_ID = 3;
     public static final int SHOOTER_SUPPORT_MOTOR_ID = 1;
+
+    public static final int DEFAULT_SHOOTER_SPEED = 69;
   }
 
   public static class TransporterConstants {
@@ -44,7 +46,7 @@ public final class Constants {
     public static final double REVERSE_RPM = -0.2;
 
     public static enum StorageSide {
-      RIGHT (2, 0),
+      RIGHT (2, 1),
       LEFT  (41, 0);
 
       private final int motor_id;

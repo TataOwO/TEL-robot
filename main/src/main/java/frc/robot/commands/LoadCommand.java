@@ -3,10 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.LoaderConstants;
-import frc.robot.Constants.TransporterConstants;
 import frc.robot.subsystems.LoaderSubsystem;
-import frc.robot.subsystems.StorageSubsystem;
-import frc.robot.subsystems.TransportDirectionSubsystem;
 import frc.robot.subsystems.TransporterSubsystem;
 
 public class LoadCommand extends Command {
@@ -34,8 +31,8 @@ public class LoadCommand extends Command {
 
     @Override
     public void initialize() {
-        final int right_disc_count = this.m_right_loader.getDiscCount();
-        final int left_disc_count  = this.m_left_loader .getDiscCount();
+        // final int right_disc_count = this.m_right_loader.getDiscCount();
+        // final int left_disc_count  = this.m_left_loader .getDiscCount();
 
         // if (left_disc_count < right_disc_count) {
         //     // m_storage = right_storage;
@@ -52,6 +49,10 @@ public class LoadCommand extends Command {
 
         timer.reset();
         timer.start();
+    }
+
+    public double time() {
+        return timer.get();
     }
 
     @Override
@@ -71,6 +72,6 @@ public class LoadCommand extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return this.timer.get() > 1.0;
+        return false;
     }
 }

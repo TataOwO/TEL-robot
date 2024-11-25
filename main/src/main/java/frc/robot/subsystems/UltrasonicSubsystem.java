@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ import java.util.List;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.Constants.UltrasonicConstants;
 import frc.robot.Constants.UltrasonicConstants.UltrasonicSide;;
 
 public class UltrasonicSubsystem extends SubsystemBase {

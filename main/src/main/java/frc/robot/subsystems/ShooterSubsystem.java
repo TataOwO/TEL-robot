@@ -66,6 +66,8 @@ public class ShooterSubsystem extends SubsystemBase {
     for (Entry<String, Boolean> key: grid.entrySet()) {
       SmartDashboard.putBoolean(key.getKey(), key.getValue());
     }
+
+    SmartDashboard.putNumber("shooter speed", ShooterConstants.DEFAULT_SHOOTER_SPEED);
   }
 
   /**

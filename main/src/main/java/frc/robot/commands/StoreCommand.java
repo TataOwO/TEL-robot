@@ -2,12 +2,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
-import frc.robot.Constants.LoaderConstants;
 import frc.robot.Constants.StorageConstants;
-import frc.robot.subsystems.LoaderSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
-import frc.robot.subsystems.TransportDirectionSubsystem;
 
 public class StoreCommand extends Command {
     // private final StorageSubsystem m_storage;
@@ -17,8 +13,14 @@ public class StoreCommand extends Command {
 
     private final Timer timer = new Timer();
 
+    private final boolean is_store;
+
+    private int button_pressed_count;
+
     public StoreCommand(StorageSubsystem[] storages, boolean is_store) {
         m_storages = storages;
+
+        this.is_store = is_store;
 
         if (is_store) RPM = StorageConstants.STORAGE_RPM;
         else RPM = StorageConstants.REVERSE_RPM;
@@ -28,12 +30,14 @@ public class StoreCommand extends Command {
     public void initialize() {
         timer.reset();
         timer.start();
+
+        button_pressed_count = 0;
     }
 
     @Override
     public void execute() {
         for (StorageSubsystem storage : m_storages) {
-            if (storage.buttonPressed()) storage.stop();
+            if (storage.buttonPressed() && timer.get()>0.3) storage.stop();
             else storage.setStore(RPM);
         }
     }
@@ -41,6 +45,8 @@ public class StoreCommand extends Command {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) return;
+        
         for (StorageSubsystem storage : m_storages) {
             storage.stop();
         }
@@ -54,6 +60,10 @@ public class StoreCommand extends Command {
             button_pressed |= storage.buttonPressed();
         }
 
-        return timer.get() > 0.3 || button_pressed;
+        if (button_pressed) ++button_pressed_count;
+
+        return is_store  && button_pressed_count>50 || 
+               !is_store && timer.get() > 0.7
+               ;
     }
 }

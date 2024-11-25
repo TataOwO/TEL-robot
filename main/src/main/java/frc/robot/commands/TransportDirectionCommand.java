@@ -2,8 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.TransportDirectionSubsystem;
 
 public class TransportDirectionCommand extends Command {
@@ -55,7 +53,7 @@ public class TransportDirectionCommand extends Command {
             // if we're trying to shoot and it's ready to shoot
             this.isShootAngle  && this.timer.get() > 1.3 ||
             // or if we're trying to load and it's ready to load
-            !this.isShootAngle && m_transport_dir.getButton()
+            !this.isShootAngle && button_pressed_times > 3
            ;
     }
 }

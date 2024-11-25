@@ -6,12 +6,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.drive.MecanumDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,11 +23,6 @@ public class MecanumDriveSubsystem extends SubsystemBase {
   private CANSparkMax front_right_motor;
   private CANSparkMax rear_left_motor;
   private CANSparkMax rear_right_motor;
-
-  private RelativeEncoder front_left_encoder;
-  private RelativeEncoder front_right_encoder;
-  private RelativeEncoder rear_left_encoder;
-  private RelativeEncoder rear_right_encoder;
 
   private SparkPIDController front_left_PID;
   private SparkPIDController front_right_PID;
@@ -112,17 +105,17 @@ public class MecanumDriveSubsystem extends SubsystemBase {
   }
 
   public void increaseSpeed() {
-    if (speed_modifier == 1) return;
+    if (speed_modifier >= 1) return;
     speed_modifier += 0.1;
 
-    this.current_speed = DriveConstants.BASE_SPEED * this.speed_modifier;
+    this.current_speed = DriveConstants.BASE_SPEED * speed_modifier;
   }
 
   public void decreaseSpeed() {
-    if (speed_modifier == 0.1) return;
+    if (speed_modifier <= 0.1) return;
     speed_modifier -= 0.1;
 
-    this.current_speed = DriveConstants.BASE_SPEED * this.speed_modifier;
+    this.current_speed = DriveConstants.BASE_SPEED * speed_modifier;
   }
 
   public double getSpeed_modifier() {

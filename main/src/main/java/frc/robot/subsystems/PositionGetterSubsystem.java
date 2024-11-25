@@ -2,14 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import org.opencv.core.Mat;
-
-import frc.robot.subsystems.UltrasonicSubsystem;
 import frc.robot.utility.PositionEstimator;
 import frc.robot.Constants.UltrasonicConstants.UltrasonicSide;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;

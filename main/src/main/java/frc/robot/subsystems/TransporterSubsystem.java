@@ -5,14 +5,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.ctre.phoenix.motorcontrol.can.VictorSPXConfiguration;
-
-import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
-
-import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,8 +24,6 @@ public class TransporterSubsystem extends SubsystemBase {
     m_transporter.config_kP(0, 0.1);
     m_transporter.config_kI(0, 0.01);
     m_transporter.config_kD(0, 0.0);
-
-    SmartDashboard.putNumber("transport speed", this.transport_speed);
   }
 
   /**
@@ -42,6 +32,10 @@ public class TransporterSubsystem extends SubsystemBase {
    */
   public Command transportCommand() {
     return this.runOnce(transportRunnable());
+  }
+
+  public Command loadCommand() {
+    return this.runOnce(()->load());
   }
 
   public Command stopTransportCommand() {
@@ -69,8 +63,7 @@ public class TransporterSubsystem extends SubsystemBase {
    * @param speed rotation per second
    */
   public void transport() {
-    double speed = SmartDashboard.getNumber("transport speed", this.transport_speed);
-    m_transporter.set(speed);
+    m_transporter.set(transport_speed);
   }
 
   public void stop() {

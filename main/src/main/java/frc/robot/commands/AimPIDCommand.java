@@ -7,14 +7,10 @@ package frc.robot.commands;
 import frc.robot.subsystems.MecanumDriveSubsystem;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.drive.MecanumDrive.WheelSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-
 
 /** An example command that uses an example subsystem. */
 public class AimPIDCommand extends Command {

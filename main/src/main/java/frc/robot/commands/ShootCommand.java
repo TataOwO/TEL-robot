@@ -7,8 +7,9 @@ package frc.robot.commands;
 import frc.robot.subsystems.TransporterSubsystem;
 import frc.robot.Constants.TransporterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.utility.Battery;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -22,6 +23,10 @@ public class ShootCommand extends Command {
 
   // top, center, or bottom
   private int TCB;
+
+  private double shooter_speed;
+
+  private final Battery battery = new Battery();
 
   /**
    * Creates a new ExampleCommand.
@@ -50,7 +55,7 @@ public class ShootCommand extends Command {
   @Override
   public void execute() {
     current_time = timer.get();
-    double shooter_speed = SmartDashboard.getNumber("shooter speed", 0);
+    double shooter_speed = SmartDashboard.getNumber("shooter speed", 0) - battery.get() + 12;
     double support_speed = Math.min(shooter_speed*0.02+0.2, 1.0);
 
     // shooter 120 RPS (this will depend on the distance)

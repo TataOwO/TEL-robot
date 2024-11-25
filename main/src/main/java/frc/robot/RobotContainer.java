@@ -6,7 +6,6 @@ package frc.robot;
 
 import frc.robot.Constants.*;
 import frc.robot.Constants.StorageConstants.StorageSide;
-import frc.robot.Constants.UltrasonicConstants.UltrasonicSide;
 import frc.robot.commands.AimPIDCommand;
 import frc.robot.commands.AimCommand;
 import frc.robot.commands.LoadCommand;
@@ -17,14 +16,10 @@ import frc.robot.subsystems.*;
 import frc.robot.utility.CustomGyro;
 import frc.robot.utility.CustomXboxController;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -51,7 +46,7 @@ public class RobotContainer {
   private final TransportDirectionSubsystem m_transport_dir_subsystem = new TransportDirectionSubsystem();
 
   // STORAGE
-  private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
+  // private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
   private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageSide.RIGHT);
 
   // ULTRASONICS
@@ -71,8 +66,6 @@ public class RobotContainer {
     configureBindings();
 
     gyro.reset();
-
-    SmartDashboard.putNumber("shooter speed", 100);
   }
 
   /**
@@ -89,7 +82,7 @@ public class RobotContainer {
     m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
 
     StorageSubsystem[] right_storage = new StorageSubsystem[] {m_right_storage_subsystem};
-    StorageSubsystem[] left_storage  = new StorageSubsystem[] {m_left_storage_subsystem};
+    // StorageSubsystem[] left_storage  = new StorageSubsystem[] {m_left_storage_subsystem};
 
     // right storage
     m_driverController.povUp().onTrue(new StoreCommand(right_storage, true));
@@ -102,12 +95,12 @@ public class RobotContainer {
 
     m_driverController.a().toggleOnTrue(Commands.sequence(
       Commands.parallel(
-        transport_dir_load_command,
+        Commands.sequence(
+          transport_dir_load_command,
+          load_command
+        ),
         new StoreCommand(right_storage, true)
-      ),
-      Commands.parallel(  
-        load_command,
-        new StoreCommand(right_storage, true)
+          .until(() -> load_command.time() > 1)
       ),
       Commands.parallel(  
         transport_dir_shoot_command,
@@ -115,26 +108,14 @@ public class RobotContainer {
       )
     ));
 
-    // pov => transport dir
-    // m_driverController.povDown().onTrue(m_transport_dir_subsystem.run(()->{
-    //   m_transport_dir_subsystem.setShoot();
-    //   m_transport_dir_subsystem.setRunDirection();
-    // }));
-    // m_driverController.povUp() .onTrue(m_transport_dir_subsystem.run(()->{
-    //   m_transport_dir_subsystem.setLoad();
-    //   m_transport_dir_subsystem.setRunDirection();
-    // }));
-    // m_driverController.povDown().or(m_driverController.povUp()).onFalse(m_transport_dir_subsystem.run(()->m_transport_dir_subsystem.stopDirection()));
-
-    // back => reset robot pos estimation
-    m_driverController.rightStick().toggleOnTrue(m_position_getter_subsystem.run(()->{
-      m_position_getter_subsystem.resetRobotEstimation();
-    }));
-
     // x => transport
-    m_driverController.x().toggleOnTrue(m_transporter_subsystem.transportCommand());
+    m_driverController.x().and(m_driverController.rightTrigger(50).negate()).toggleOnTrue(m_transporter_subsystem.transportCommand());
+    m_driverController.x().and(m_driverController.rightTrigger(50))         .toggleOnTrue(m_transporter_subsystem.loadCommand());
     m_driverController.x().toggleOnFalse(m_transporter_subsystem.stopTransportCommand());
 
+    m_driverController.b().onTrue(new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem, m_transporter_subsystem));
+
+    // start back -> transport dir
     m_driverController.start().onTrue(m_transport_dir_subsystem.run(()->{
       m_transport_dir_subsystem.setLoad();
       m_transport_dir_subsystem.setRunDirection();
@@ -166,6 +147,11 @@ public class RobotContainer {
       .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.decreaseSpeed()));
     m_driverController.rightBumper()
       .onTrue(m_drive_subsystem.runOnce(() -> m_drive_subsystem.increaseSpeed()));
+      
+    // back => reset robot pos estimation
+    m_driverController.rightStick().toggleOnTrue(m_position_getter_subsystem.run(()->{
+      m_position_getter_subsystem.resetRobotEstimation();
+    }));
   }
 
   /**
