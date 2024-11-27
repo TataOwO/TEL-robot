@@ -58,20 +58,22 @@ public class UltrasonicSubsystem extends SubsystemBase {
     return this.processed_distance;
   }
 
-  public double[] calculatePosition(double current_angle_radian) { // TODO: TEST THIS CODE
+  public double[] calculatePosition(double current_angle_radian) {
     // distance between ultrasonic and the center
-    double base_x = -Math.sin(current_angle_radian);
-    double base_y =  Math.cos(current_angle_radian);
+    double[] side_offset = m_side.getOffset();
+
+    double base_x = Math.sin(current_angle_radian) * side_offset[0] + Math.cos(current_angle_radian) * side_offset[1];
+    double base_y = Math.cos(current_angle_radian) * side_offset[0] - Math.sin(current_angle_radian) * side_offset[1];
 
     double sonic_angle_r = Math.toRadians(m_side.getBaseAngle()) + current_angle_radian;
 
     if (processed_distance == -1) return new double[] {-1};
 
     // distance between ultrasonic and object
-    double distance_x = -Math.sin(sonic_angle_r) * processed_distance;
-    double distance_y =  Math.cos(sonic_angle_r) * processed_distance;
+    double distance_x = Math.sin(sonic_angle_r) * processed_distance;
+    double distance_y = Math.cos(sonic_angle_r) * processed_distance;
 
-    return new double[] {base_x+distance_x, -base_y-distance_y};
+    return new double[] {base_x-distance_x, base_y-distance_y};
   }
 
   public void clear() {
