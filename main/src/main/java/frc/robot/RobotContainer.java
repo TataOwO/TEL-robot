@@ -97,21 +97,20 @@ public class RobotContainer {
     TransportDirectionCommand transport_dir_load_command = new TransportDirectionCommand(m_transport_dir_subsystem, false);
     LoadCommand load_command = new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem, m_transporter_subsystem);
 
+    StorageSubsystem[] both_storage = new StorageSubsystem[] {m_left_storage_subsystem, m_right_storage_subsystem};
+
     m_driverController.a().toggleOnTrue(Commands.sequence(
       Commands.parallel(
         Commands.sequence(
           transport_dir_load_command,
           load_command
         ),
-        new StoreCommand(right_storage, true)
-          .until(() -> transport_dir_load_command.isFinished() && load_command.time() > 1),
-        new StoreCommand(left_storage, true)
+        new StoreCommand(both_storage, true)
           .until(() -> transport_dir_load_command.isFinished() && load_command.time() > 1)
       ),
       Commands.parallel(  
         transport_dir_shoot_command,
-        new StoreCommand(right_storage, false),
-        new StoreCommand(left_storage, false)
+        new StoreCommand(both_storage, false)
       )
     ));
 
