@@ -46,7 +46,7 @@ public class RobotContainer {
   private final TransportDirectionSubsystem m_transport_dir_subsystem = new TransportDirectionSubsystem();
 
   // STORAGE
-  // private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
+  private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
   private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageSide.RIGHT);
 
   // ULTRASONICS
@@ -82,11 +82,15 @@ public class RobotContainer {
     m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
 
     StorageSubsystem[] right_storage = new StorageSubsystem[] {m_right_storage_subsystem};
-    // StorageSubsystem[] left_storage  = new StorageSubsystem[] {m_left_storage_subsystem};
+    StorageSubsystem[] left_storage  = new StorageSubsystem[] {m_left_storage_subsystem};
 
     // right storage
     m_driverController.povUp().onTrue(new StoreCommand(right_storage, true));
     m_driverController.povDown().onTrue(new StoreCommand(right_storage, false));
+
+    // left storage
+    m_driverController.povLeft().onTrue(new StoreCommand(left_storage, true));
+    m_driverController.povRight().onTrue(new StoreCommand(left_storage, false));
 
     // a => transport dir
     TransportDirectionCommand transport_dir_shoot_command = new TransportDirectionCommand(m_transport_dir_subsystem, true);
@@ -100,11 +104,14 @@ public class RobotContainer {
           load_command
         ),
         new StoreCommand(right_storage, true)
-          .until(() -> load_command.time() > 1)
+          .until(() -> transport_dir_load_command.isFinished() && load_command.time() > 1),
+        new StoreCommand(left_storage, true)
+          .until(() -> transport_dir_load_command.isFinished() && load_command.time() > 1)
       ),
       Commands.parallel(  
         transport_dir_shoot_command,
-        new StoreCommand(right_storage, false)
+        new StoreCommand(right_storage, false),
+        new StoreCommand(left_storage, false)
       )
     ));
 
@@ -113,7 +120,14 @@ public class RobotContainer {
     m_driverController.x().and(m_driverController.rightTrigger(50))         .toggleOnTrue(m_transporter_subsystem.loadCommand());
     m_driverController.x().toggleOnFalse(m_transporter_subsystem.stopTransportCommand());
 
-    m_driverController.b().onTrue(new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem, m_transporter_subsystem));
+    m_driverController.b().toggleOnTrue(Commands.run(()->{
+      m_left_loader_subsystem.load(-LoaderConstants.LOADER_SPEED);
+      m_transporter_subsystem.load();
+    }));
+    m_driverController.b().toggleOnFalse(Commands.run(()->{
+      m_left_loader_subsystem.stop();
+      m_transporter_subsystem.stop();
+    }));
 
     // start back -> transport dir
     m_driverController.start().onTrue(m_transport_dir_subsystem.run(()->{

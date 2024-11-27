@@ -47,7 +47,7 @@ public final class Constants {
 
     public static enum StorageSide {
       RIGHT (2, 1),
-      LEFT  (41, 0);
+      LEFT  (41, 3);
 
       private final int motor_id;
       private final int button_id;
