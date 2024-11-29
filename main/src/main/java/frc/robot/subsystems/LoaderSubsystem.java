@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LoaderConstants;
 import frc.robot.Constants.LoaderConstants.loaderSide;
 
 public class LoaderSubsystem extends SubsystemBase {
@@ -34,8 +35,8 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param speed rotation per second
    */
-  public Command loadCommand(double speed) {
-    return this.runOnce(loadRunnable(speed));
+  public Command loadCommand() {
+    return this.runOnce(loadRunnable());
   }
 
   public Command stopCommand() {
@@ -46,8 +47,8 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param speed rotation per second
    */
-  private Runnable loadRunnable(double speed) {
-    return () -> load(speed);
+  private Runnable loadRunnable() {
+    return () -> load();
   }
 
   private Runnable stopRunnable() {
@@ -58,8 +59,16 @@ public class LoaderSubsystem extends SubsystemBase {
    * 
    * @param speed rotation per second
    */
-  public void load(double speed) {
-    m_loader.set(speed);
+  public void load() {
+    m_loader.set(LoaderConstants.LOADER_SPEED);
+  }
+
+  /**
+   * 
+   * @param speed rotation per second
+   */
+  public void reverse() {
+    m_loader.set(LoaderConstants.REVERSE_SPEED);
   }
 
   public void stop() {

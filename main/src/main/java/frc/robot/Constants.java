@@ -70,9 +70,12 @@ public final class Constants {
 
   public static class LoaderConstants {
     public static final double LOADER_SPEED = 0.8;
+    public static final double REVERSE_SPEED = -0.8;
 
     public static final int FRONT_LOADER_MOTOR_ID = 7;
     public static final int LEFT_LOADER_MOTOR_ID = 13;
+
+    public static final double TRANSPORT_LOAD_TIME = 1;
 
     public static enum loaderSide {
       RIGHT (7, 16),
