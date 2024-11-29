@@ -29,8 +29,6 @@ public class MecanumDriveSubsystem extends SubsystemBase {
   private SparkPIDController rear_left_PID;
   private SparkPIDController rear_right_PID;
 
-  private MecanumDrive.WheelSpeeds wheel_speeds = new MecanumDrive.WheelSpeeds(0,0,0,0);
-
   private static final CANSparkLowLevel.MotorType drive_motor_type = DriveConstants.DRIVE_MOTOR_TYPE;
 
   private double speed_modifier = DriveConstants.DEFAULT_SPEED_MODIFIER;
