@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.TransporterSubsystem;
-import frc.robot.Constants.TransporterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.utility.Battery;
 
@@ -20,9 +19,6 @@ public class ShootCommand extends Command {
   private final TransporterSubsystem transport_subsystem;
   private final Timer timer = new Timer();
   private double current_time = 0;
-
-  // top, center, or bottom
-  private int TCB;
 
   private double shooter_speed;
 
@@ -49,13 +45,24 @@ public class ShootCommand extends Command {
     boolean top    = SmartDashboard.getBoolean("TL goal", false) && SmartDashboard.getBoolean("TC goal", false) && SmartDashboard.getBoolean("TR goal", false);
     boolean center = SmartDashboard.getBoolean("CL goal", false) && SmartDashboard.getBoolean("CC goal", false) && SmartDashboard.getBoolean("CR goal", false);
     boolean bottom = SmartDashboard.getBoolean("BL goal", false) && SmartDashboard.getBoolean("BC goal", false) && SmartDashboard.getBoolean("BR goal", false);
+
+    if (top) {
+      shooter_speed = 115;
+    }
+    if (center) {
+      shooter_speed = 91;
+    }
+    if (bottom) {
+      shooter_speed = 70;
+    }
+
+    shooter_speed -= battery.get() - 12;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     current_time = timer.get();
-    double shooter_speed = SmartDashboard.getNumber("shooter speed", 0) - battery.get() + 12;
     double support_speed = Math.min(shooter_speed*0.02+0.2, 1.0);
 
     // shooter 120 RPS (this will depend on the distance)
