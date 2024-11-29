@@ -6,18 +6,14 @@ package frc.robot;
 
 import frc.robot.Constants.*;
 import frc.robot.Constants.StorageConstants.StorageSide;
-import frc.robot.commands.AimPIDCommand;
-import frc.robot.commands.AimCommand;
-import frc.robot.commands.LoadCommand;
+import frc.robot.commands.LoadManagerCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StoreCommand;
-import frc.robot.commands.TransportDirectionCommand;
 import frc.robot.subsystems.*;
 import frc.robot.utility.CustomGyro;
 import frc.robot.utility.CustomXboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -78,53 +74,54 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    /******* AUTOMATIC FULL ACTION COMMANDS ********/
+
     // y => shooter
     m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
 
-    StorageSubsystem[] right_storage = new StorageSubsystem[] {m_right_storage_subsystem};
-    StorageSubsystem[] left_storage  = new StorageSubsystem[] {m_left_storage_subsystem};
+    // a => load disc
+    m_driverController.a().toggleOnTrue(new LoadManagerCommand(m_transporter_subsystem, m_transport_dir_subsystem, m_left_loader_subsystem, m_right_loader_subsystem, m_left_storage_subsystem, m_right_storage_subsystem));
 
-    // right storage
-    m_driverController.povUp().onTrue(new StoreCommand(right_storage, true));
-    m_driverController.povDown().onTrue(new StoreCommand(right_storage, false));
-
-    // left storage
-    m_driverController.povLeft().onTrue(new StoreCommand(left_storage, true));
-    m_driverController.povRight().onTrue(new StoreCommand(left_storage, false));
-
-    // a => transport dir
-    TransportDirectionCommand transport_dir_shoot_command = new TransportDirectionCommand(m_transport_dir_subsystem, true);
-    TransportDirectionCommand transport_dir_load_command = new TransportDirectionCommand(m_transport_dir_subsystem, false);
-    LoadCommand load_command = new LoadCommand(m_left_loader_subsystem, m_right_loader_subsystem, m_transporter_subsystem);
-
-    StorageSubsystem[] both_storage = new StorageSubsystem[] {m_left_storage_subsystem, m_right_storage_subsystem};
-
-    m_driverController.a().toggleOnTrue(Commands.sequence(
-      Commands.parallel(
-        Commands.sequence(
-          transport_dir_load_command,
-          load_command
-        ),
-        new StoreCommand(both_storage, true)
-          .until(() -> transport_dir_load_command.isFinished() && load_command.time() > 1)
-      ),
-      Commands.parallel(  
-        transport_dir_shoot_command,
-        new StoreCommand(both_storage, false)
-      )
-    ));
+    /******* MANUAL COMMANDS ********/
 
     // x => transport
-    m_driverController.x().and(m_driverController.rightTrigger(50).negate()).toggleOnTrue(m_transporter_subsystem.transportCommand());
-    m_driverController.x().and(m_driverController.rightTrigger(50))         .toggleOnTrue(m_transporter_subsystem.loadCommand());
-    m_driverController.x().toggleOnFalse(m_transporter_subsystem.stopTransportCommand());
+    // m_driverController.x().and(m_driverController.leftTrigger(0.5).negate()).toggleOnTrue(m_transporter_subsystem.transportCommand());
+    // m_driverController.x().and(m_driverController.leftTrigger(0.5))         .toggleOnTrue(m_transporter_subsystem.loadCommand());
+    // m_driverController.x().toggleOnFalse(m_transporter_subsystem.stopTransportCommand());
 
-    m_driverController.b().toggleOnTrue(Commands.run(()->{
-      m_left_loader_subsystem.load(-LoaderConstants.LOADER_SPEED);
+    // pov up/down => right storage
+    m_driverController.povUp().onTrue(new StoreCommand(m_right_storage_subsystem, true));
+    m_driverController.povDown().onTrue(new StoreCommand(m_right_storage_subsystem, false));
+
+    // pov left/right => left storage
+    m_driverController.povLeft().onTrue(new StoreCommand(m_left_storage_subsystem, true));
+    m_driverController.povRight().onTrue(new StoreCommand(m_left_storage_subsystem, false));
+
+    // x => left loader
+    m_driverController.x().and(m_driverController.leftTrigger(0.5).negate()).toggleOnTrue(m_left_loader_subsystem.run(()->{
+      m_left_loader_subsystem.load();
       m_transporter_subsystem.load();
     }));
-    m_driverController.b().toggleOnFalse(Commands.run(()->{
+    m_driverController.x().and(m_driverController.leftTrigger(0.5))         .toggleOnTrue(m_left_loader_subsystem.run(()->{
+      m_left_loader_subsystem.reverse();
+      m_transporter_subsystem.load();
+    }));
+    m_driverController.x().toggleOnFalse(m_left_loader_subsystem.run(()->{
       m_left_loader_subsystem.stop();
+      m_transporter_subsystem.stop();
+    }));
+
+    // b => right loader
+    m_driverController.b().and(m_driverController.leftTrigger(0.5).negate()).toggleOnTrue(m_right_loader_subsystem.run(()->{
+      m_right_loader_subsystem.load();
+      m_transporter_subsystem.load();
+    }));
+    m_driverController.b().and(m_driverController.leftTrigger(0.5))         .toggleOnTrue(m_right_loader_subsystem.run(()->{
+      m_right_loader_subsystem.reverse();
+      m_transporter_subsystem.load();
+    }));
+    m_driverController.b().toggleOnFalse(m_right_loader_subsystem.run(()->{
+      m_right_loader_subsystem.stop();
       m_transporter_subsystem.stop();
     }));
 
@@ -140,6 +137,8 @@ public class RobotContainer {
     m_driverController.start().or(m_driverController.back()).toggleOnFalse(m_transport_dir_subsystem.run(()->{
       m_transport_dir_subsystem.stopDirection();
     }));
+
+    /******* DRIVE COMMANDS ********/
 
     // AimCommand turnLeft  = new AimCommand(m_drive_subsystem, gyro, -90);
     // AimCommand turnRight = new AimCommand(m_drive_subsystem, gyro, +90);
