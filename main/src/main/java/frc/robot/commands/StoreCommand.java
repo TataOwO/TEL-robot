@@ -6,9 +6,7 @@ import frc.robot.Constants.StorageConstants;
 import frc.robot.subsystems.StorageSubsystem;
 
 public class StoreCommand extends Command {
-    // private final StorageSubsystem m_storage;
-
-    private final StorageSubsystem[] m_storages;
+    private final StorageSubsystem m_storage;
     private final double RPM;
 
     private final Timer timer = new Timer();
@@ -17,8 +15,8 @@ public class StoreCommand extends Command {
 
     private int button_pressed_count;
 
-    public StoreCommand(StorageSubsystem[] storages, boolean is_store) {
-        m_storages = storages;
+    public StoreCommand(StorageSubsystem storages, boolean is_store) {
+        m_storage = storages;
 
         this.is_store = is_store;
 
@@ -36,10 +34,8 @@ public class StoreCommand extends Command {
 
     @Override
     public void execute() {
-        for (StorageSubsystem storage : m_storages) {
-            if (storage.buttonPressed() && timer.get()>0.3) storage.stop();
-            else storage.setStore(RPM);
-        }
+        if (m_storage.buttonPressed() && timer.get()>0.3) m_storage.stop();
+        else m_storage.setStore(RPM);
     }
 
     // Called once the command ends or is interrupted.
@@ -47,18 +43,13 @@ public class StoreCommand extends Command {
     public void end(boolean interrupted) {
         if (interrupted) return;
         
-        for (StorageSubsystem storage : m_storages) {
-            storage.stop();
-        }
+        m_storage.stop();
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        boolean button_pressed = false;
-        for (StorageSubsystem storage : m_storages) {
-            button_pressed |= storage.buttonPressed();
-        }
+        boolean button_pressed = m_storage.buttonPressed();
 
         if (button_pressed) ++button_pressed_count;
 
