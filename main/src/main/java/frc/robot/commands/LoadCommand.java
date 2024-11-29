@@ -29,23 +29,19 @@ public class LoadCommand extends Command {
         return this.is_left;
     }
 
+    public void processIsLeft() {
+        if (m_right_loader.getDiscCount() > 0) {
+            m_loader  = this.m_right_loader;
+            is_left = false;
+        } else {
+            m_loader  = this.m_left_loader;
+            is_left = true;
+        }
+    }
+
     @Override
     public void initialize() {
-        // final int right_disc_count = this.m_right_loader.getDiscCount();
-        // final int left_disc_count  = this.m_left_loader .getDiscCount();
-
-        // if (left_disc_count < right_disc_count) {
-        //     // m_storage = right_storage;
-        //     m_loader  = this.m_right_loader;
-        //     is_left = false;
-        // } else {
-        //     // m_storage = left_storage;
-        //     m_loader  = this.m_left_loader;
-        //     is_left = true;
-        // }
-
-        m_loader  = this.m_right_loader;
-        is_left = true;
+        processIsLeft();
 
         timer.reset();
         timer.start();
@@ -57,7 +53,7 @@ public class LoadCommand extends Command {
 
     @Override
     public void execute() {
-        m_loader.load(-LoaderConstants.LOADER_SPEED);
+        m_loader.load(LoaderConstants.LOADER_SPEED);
         m_transport.load();
     }
 
@@ -72,6 +68,6 @@ public class LoadCommand extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return m_transport.getButton();
     }
 }

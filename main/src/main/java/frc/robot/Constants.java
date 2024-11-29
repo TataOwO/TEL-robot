@@ -39,6 +39,7 @@ public final class Constants {
     public static final int DIRECTION_MOTOR_ID = 12;
 
     public static final int DIRECTION_BUTTON_PIN = 0;
+    public static final int TRANSPORT_BUTTON_PIN = 2;
   }
 
   public static class StorageConstants {

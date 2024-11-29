@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,6 +18,8 @@ public class TransporterSubsystem extends SubsystemBase {
 
   private final double transport_speed = TransporterConstants.TRANSPORTER_ROTATION_SPEED;
   private final double load_speed = TransporterConstants.TRANSPORTER_LOAD_SPEED;
+
+  private final DigitalOutput m_button = new DigitalOutput(TransporterConstants.TRANSPORT_BUTTON_PIN);
   
   public TransporterSubsystem() {
     m_transporter     = new WPI_VictorSPX(TransporterConstants.TRANSPORTER_MOTOR_ID);
@@ -40,6 +44,10 @@ public class TransporterSubsystem extends SubsystemBase {
 
   public Command stopTransportCommand() {
     return this.runOnce(stopTransportRunnable());
+  }
+
+  public boolean getButton() {
+    return m_button.get();
   }
 
   /**

@@ -26,7 +26,7 @@ public class UltrasonicSubsystem extends SubsystemBase {
   private final int MAX_READINGS_SIZE = 10;
   private final double MAX_DEVIATION = 100; // 10cm
   private final double MAX_VALID_DISTANCE = 5000; // 5meter
-  private final double MIN_VALID_DISTANCE = 30;  // 3 cm
+  private final double MIN_VALID_DISTANCE = 20;  // 2 cm
   private final double KALMAN_GAIN = 0.5;
 
   private final List<Double> recent_readings = new ArrayList<>();

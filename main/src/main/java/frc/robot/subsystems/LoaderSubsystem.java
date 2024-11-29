@@ -25,8 +25,6 @@ public class LoaderSubsystem extends SubsystemBase {
 
     this.discs_count = loader_side.getDefaultDiscCount();
 
-    m_loader.setInverted(true);
-
     m_loader.config_kP(0, 0.1);
     m_loader.config_kI(0, 0.01);
     m_loader.config_kD(0, 0.0);
