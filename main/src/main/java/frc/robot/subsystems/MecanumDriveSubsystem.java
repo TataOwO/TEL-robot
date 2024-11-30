@@ -110,7 +110,7 @@ public class MecanumDriveSubsystem extends SubsystemBase {
   }
 
   public void decreaseSpeed() {
-    if (speed_modifier <= 0.1) return;
+    if (speed_modifier <= 0.2) return;
     speed_modifier -= 0.1;
 
     this.current_speed = DriveConstants.BASE_SPEED * speed_modifier;

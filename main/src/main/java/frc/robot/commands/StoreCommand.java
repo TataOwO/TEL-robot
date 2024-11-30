@@ -15,13 +15,15 @@ public class StoreCommand extends Command {
 
     private int button_pressed_count;
 
-    public StoreCommand(StorageSubsystem storages, boolean is_store) {
-        m_storage = storages;
+    public StoreCommand(StorageSubsystem storage, boolean is_store) {
+        m_storage = storage;
 
         this.is_store = is_store;
 
         if (is_store) RPM = StorageConstants.STORAGE_RPM;
         else RPM = StorageConstants.REVERSE_RPM;
+
+        addRequirements(storage);
     }
     
     @Override

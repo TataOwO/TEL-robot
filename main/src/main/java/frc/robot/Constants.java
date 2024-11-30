@@ -27,12 +27,14 @@ public final class Constants {
     public static final int SHOOTER_MOTOR_ID = 3;
     public static final int SHOOTER_SUPPORT_MOTOR_ID = 1;
 
-    public static final int DEFAULT_SHOOTER_SPEED = 69;
+    public static final double TOP_SPEED = 115;
+    public static final double MID_SPEED = 93;
+    public static final double BOT_SPEED = 70;
   }
 
   public static class TransporterConstants {
-    public static final double TRANSPORTER_ROTATION_SPEED = 0.4;
-    public static final double TRANSPORTER_LOAD_SPEED = -0.3;
+    public static final double TRANSPORTER_ROTATION_SPEED = 0.5;
+    public static final double TRANSPORTER_LOAD_SPEED = -0.4;
     public static final double DIRECTION_ROTATION_SPEED = 0.6;
 
     public static final int TRANSPORTER_MOTOR_ID = 11;
@@ -75,7 +77,9 @@ public final class Constants {
     public static final int FRONT_LOADER_MOTOR_ID = 7;
     public static final int LEFT_LOADER_MOTOR_ID = 13;
 
-    public static final double TRANSPORT_LOAD_TIME = 1;
+    public static final double TRANSPORT_LOAD_TIME = 0.5;
+
+    public static final double LOAD_MINIMUM_TIME = 1.0;
 
     public static enum loaderSide {
       RIGHT (7, 16),

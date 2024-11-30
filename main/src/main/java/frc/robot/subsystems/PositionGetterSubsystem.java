@@ -73,7 +73,7 @@ public class PositionGetterSubsystem extends SubsystemBase {
         calculateSonicPosition();
 
         // estimate robot position based on the sonic's readings
-        estimated_robot_position();
+        // estimated_robot_position();
     }
 
     private void calculateSonicPosition() {

@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.*;
 import frc.robot.Constants.StorageConstants.StorageSide;
+import frc.robot.commands.ExtraShootCommand;
 import frc.robot.commands.LoadManagerCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StoreCommand;
@@ -56,6 +57,9 @@ public class RobotContainer {
   private CustomXboxController m_driverController =
       new CustomXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
+  // TRANSPORT BUTTON TRIGGER
+  Trigger transport_button = new Trigger(()->m_transporter_subsystem.getButton());
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -77,10 +81,14 @@ public class RobotContainer {
     /******* AUTOMATIC FULL ACTION COMMANDS ********/
 
     // y => shooter
-    m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
+    m_driverController.y().and(m_driverController.leftTrigger(0.5).negate()).toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
+    m_driverController.y().and(m_driverController.leftTrigger(0.5))         .toggleOnTrue(new ExtraShootCommand(m_shooter_subsystem));
 
     // a => load disc
     m_driverController.a().toggleOnTrue(new LoadManagerCommand(m_transporter_subsystem, m_transport_dir_subsystem, m_left_loader_subsystem, m_right_loader_subsystem, m_left_storage_subsystem, m_right_storage_subsystem));
+
+    // auto shoot dir
+    // transport_button.toggleOnTrue(new TransportDirectionCommand(m_transport_dir_subsystem, true));
 
     /******* MANUAL COMMANDS ********/
 
@@ -100,15 +108,12 @@ public class RobotContainer {
     // x => left loader
     m_driverController.x().and(m_driverController.leftTrigger(0.5).negate()).toggleOnTrue(m_left_loader_subsystem.run(()->{
       m_left_loader_subsystem.load();
-      m_transporter_subsystem.load();
     }));
     m_driverController.x().and(m_driverController.leftTrigger(0.5))         .toggleOnTrue(m_left_loader_subsystem.run(()->{
       m_left_loader_subsystem.reverse();
-      m_transporter_subsystem.load();
     }));
     m_driverController.x().toggleOnFalse(m_left_loader_subsystem.run(()->{
       m_left_loader_subsystem.stop();
-      m_transporter_subsystem.stop();
     }));
 
     // b => right loader

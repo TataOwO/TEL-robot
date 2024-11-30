@@ -34,40 +34,35 @@ public class LoadManagerCommand extends Command {
 
       addRequirements(transport_dir, load_left, load_right, storage_left, storage_right);
 
-      TransportDirectionCommand transport_dir_shoot_command = new TransportDirectionCommand(transport_dir, true);
-      TransportDirectionCommand transport_dir_load_command = new TransportDirectionCommand(transport_dir, false);
+      TransportDirectionCommand transport_dir_shoot_left = new TransportDirectionCommand(transport_dir, true);
+      TransportDirectionCommand transport_dir_load_left = new TransportDirectionCommand(transport_dir, false);
+
+      TransportDirectionCommand transport_dir_shoot_right = new TransportDirectionCommand(transport_dir, true);
+      TransportDirectionCommand transport_dir_load_right = new TransportDirectionCommand(transport_dir, false);
 
       m_left_command = Commands.sequence(
-        transport_dir_load_command,
+        transport_dir_load_left,
         Commands.parallel(
           new LoadCommand(load_left, transport),
           new StoreCommand(storage_left, true)
         ),
         new TransportLoadForSomeTime(transport),
         Commands.parallel(
-          new LoadCommand(load_left, transport),
-          new StoreCommand(storage_left, true)
-        ),
-        Commands.parallel(
           new StoreCommand(storage_left, false),
-          transport_dir_shoot_command
+          transport_dir_shoot_left
         )
       );
 
       m_right_command = Commands.sequence(
-        transport_dir_load_command,
+        transport_dir_load_right,
         Commands.parallel(
           new LoadCommand(load_right, transport),
           new StoreCommand(storage_right, true)
         ),
         new TransportLoadForSomeTime(transport),
         Commands.parallel(
-          new LoadCommand(load_right, transport),
-          new StoreCommand(storage_right, true)
-        ),
-        Commands.parallel(
           new StoreCommand(storage_right, false),
-          transport_dir_shoot_command
+          transport_dir_shoot_right
         )
       );
     }
@@ -77,9 +72,9 @@ public class LoadManagerCommand extends Command {
       if (loader_right.getDiscCount() > 0) {
         m_right_command.schedule();
       }
-      else {
-        m_left_command.schedule();
-      }
+      // else {
+      //   m_left_command.schedule();
+      // }
     }
 
     @Override

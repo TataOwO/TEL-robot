@@ -6,15 +6,15 @@ import frc.robot.subsystems.TransportDirectionSubsystem;
 
 public class TransportDirectionCommand extends Command {
     private final TransportDirectionSubsystem m_transport_dir;
-    private final boolean isShootAngle;
+    private final boolean is_shoot_angle;
 
     private final Timer timer = new Timer();
 
     private int button_pressed_times = 0;
 
-    public TransportDirectionCommand(TransportDirectionSubsystem dir_subsystem, boolean isShootAngle) {
+    public TransportDirectionCommand(TransportDirectionSubsystem dir_subsystem, boolean is_shoot_angle) {
         this.m_transport_dir = dir_subsystem;
-        this.isShootAngle = isShootAngle;
+        this.is_shoot_angle = is_shoot_angle;
 
         addRequirements(dir_subsystem);
     }
@@ -22,7 +22,7 @@ public class TransportDirectionCommand extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        if (this.isShootAngle) this.m_transport_dir.setShoot();
+        if (this.is_shoot_angle) this.m_transport_dir.setShoot();
         else this.m_transport_dir.setLoad();
 
         this.timer.reset();
@@ -43,7 +43,7 @@ public class TransportDirectionCommand extends Command {
     public void end(boolean interrupted) {
         this.m_transport_dir.stopDirection();
 
-        this.m_transport_dir.setReady(this.isShootAngle);
+        this.m_transport_dir.setReady(this.is_shoot_angle);
     }
 
     // Returns true when the command should end.
@@ -51,9 +51,9 @@ public class TransportDirectionCommand extends Command {
     public boolean isFinished() {
         return
             // if we're trying to shoot and it's ready to shoot
-            this.isShootAngle  && this.timer.get() > 1.3 ||
+            this.is_shoot_angle  && this.timer.get() > 0.8 ||
             // or if we're trying to load and it's ready to load
-            !this.isShootAngle && button_pressed_times > 3
+            !this.is_shoot_angle && button_pressed_times > 3
            ;
     }
 }

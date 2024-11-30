@@ -4,19 +4,14 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.TransporterSubsystem;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** An example command that uses an example subsystem. */
-public class ShootCommand extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+public class ExtraShootCommand extends Command {
   private final ShooterSubsystem     shooter_subsystem;
-  private final TransporterSubsystem transport_subsystem;
   private final Timer timer = new Timer();
   private double current_time = 0;
 
@@ -27,11 +22,10 @@ public class ShootCommand extends Command {
    *
    * @param shooter_subsystem The subsystem used by this command.
    */
-  public ShootCommand(ShooterSubsystem shooter_subsystem, TransporterSubsystem transport_subsystem) {
+  public ExtraShootCommand(ShooterSubsystem shooter_subsystem) {
     this.shooter_subsystem       = shooter_subsystem;
-    this.transport_subsystem  = transport_subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(shooter_subsystem, transport_subsystem);
+    addRequirements(shooter_subsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -40,44 +34,29 @@ public class ShootCommand extends Command {
     timer.reset();
     timer.start();
 
-    boolean top    = SmartDashboard.getBoolean("TOP goal", false);
-    boolean center = SmartDashboard.getBoolean("MID goal", false);
-    boolean bottom = SmartDashboard.getBoolean("BOT goal", false);
-
-    if (top) {
-      shooter_speed = SmartDashboard.getNumber("TOP shooter speed", ShooterConstants.TOP_SPEED);
-    }
-    if (center) {
-      shooter_speed = SmartDashboard.getNumber("MID shooter speed", ShooterConstants.TOP_SPEED);
-    }
-    if (bottom) {
-      shooter_speed = SmartDashboard.getNumber("BOT shooter speed", ShooterConstants.TOP_SPEED);
-    }
+    shooter_speed = 69;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     current_time = timer.get();
-    double support_speed = Math.min(shooter_speed*0.02+0.2, 1.0);
+    double support_speed = 1;
 
     // shooter 120 RPS (this will depend on the distance)
     // transport 0.4/1
     if (current_time < 1) {
       shooter_subsystem.shoot(
         shooter_speed,
-        support_speed
+        0
       );
-      transport_subsystem.stop();
     } else if (current_time < 2.5) {
       shooter_subsystem.shoot(
         shooter_speed,
         support_speed
       );
-      transport_subsystem.transport();
     } else if (current_time >= 2.5) {
       shooter_subsystem.stop();
-      transport_subsystem.stop();
     }
   }
 
@@ -85,7 +64,6 @@ public class ShootCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     shooter_subsystem.stop();
-    transport_subsystem.stop();
   }
 
   // Returns true when the command should end.

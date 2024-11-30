@@ -11,7 +11,7 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
-          "6,1": {
+          "7,1": {
             "size": [
               1,
               1
@@ -24,7 +24,7 @@
               "_showGlyph": false
             }
           },
-          "7,1": {
+          "8,1": {
             "size": [
               1,
               1
@@ -37,7 +37,7 @@
               "_showGlyph": false
             }
           },
-          "6,2": {
+          "7,2": {
             "size": [
               1,
               1
@@ -50,7 +50,7 @@
               "_showGlyph": false
             }
           },
-          "6,3": {
+          "7,3": {
             "size": [
               1,
               1
@@ -63,7 +63,7 @@
               "_showGlyph": false
             }
           },
-          "5,2": {
+          "6,2": {
             "size": [
               1,
               1
@@ -76,7 +76,7 @@
               "_showGlyph": false
             }
           },
-          "5,3": {
+          "6,3": {
             "size": [
               1,
               1
@@ -89,7 +89,7 @@
               "_showGlyph": false
             }
           },
-          "7,2": {
+          "8,2": {
             "size": [
               1,
               1
@@ -102,7 +102,7 @@
               "_showGlyph": false
             }
           },
-          "7,3": {
+          "8,3": {
             "size": [
               1,
               1
@@ -115,7 +115,7 @@
               "_showGlyph": false
             }
           },
-          "3,2": {
+          "4,2": {
             "size": [
               2,
               2
@@ -132,7 +132,7 @@
               "Visuals/Counter clockwise": false
             }
           },
-          "5,1": {
+          "6,1": {
             "size": [
               1,
               1
@@ -145,141 +145,7 @@
               "_showGlyph": false
             }
           },
-          "1,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/BC goal",
-              "_title": "SmartDashboard/BC goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "2,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/BR goal",
-              "_title": "SmartDashboard/BR goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "1,1": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/CC goal",
-              "_title": "SmartDashboard/CC goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "0,1": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/CL goal",
-              "_title": "SmartDashboard/CL goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "2,1": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/CR goal",
-              "_title": "SmartDashboard/CR goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "1,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/TC goal",
-              "_title": "SmartDashboard/TC goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "0,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/TL goal",
-              "_title": "SmartDashboard/TL goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "2,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/TR goal",
-              "_title": "SmartDashboard/TR goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "3,1": {
-            "size": [
-              2,
-              1
-            ],
-            "content": {
-              "_type": "Number Slider",
-              "_source0": "network_table:///SmartDashboard/transport speed",
-              "_title": "SmartDashboard/transport speed",
-              "_glyph": 148,
-              "_showGlyph": false,
-              "Slider Settings/Min": -1.0,
-              "Slider Settings/Max": 1.0,
-              "Slider Settings/Block increment": 0.0625,
-              "Visuals/Display value": true
-            }
-          },
-          "0,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Toggle Button",
-              "_source0": "network_table:///SmartDashboard/BL goal",
-              "_title": "SmartDashboard/BL goal",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "5,0": {
+          "0,3": {
             "size": [
               1,
               1
@@ -294,7 +160,7 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
-          "6,0": {
+          "1,2": {
             "size": [
               1,
               1
@@ -309,15 +175,95 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
+          "1,3": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/transport button",
+              "_title": "transport button",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
+            }
+          },
+          "2,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Toggle Button",
+              "_source0": "network_table:///SmartDashboard/TOP goal",
+              "_title": "SmartDashboard/TOP goal",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
           "3,0": {
             "size": [
-              2,
+              1,
               1
             ],
             "content": {
               "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/shooter speed",
-              "_title": "SmartDashboard/shooter speed",
+              "_source0": "network_table:///SmartDashboard/TOP shooter speed",
+              "_title": "SmartDashboard/TOP shooter speed",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "3,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/BOT shooter speed",
+              "_title": "/SmartDashboard/BOT shooter speed",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "2,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Toggle Button",
+              "_source0": "network_table:///SmartDashboard/MID goal",
+              "_title": "SmartDashboard/MID goal",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "3,1": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/MID shooter speed",
+              "_title": "/SmartDashboard/MID shooter speed",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "2,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Toggle Button",
+              "_source0": "network_table:///SmartDashboard/BOT goal",
+              "_title": "BOT goal",
               "_glyph": 148,
               "_showGlyph": false
             }

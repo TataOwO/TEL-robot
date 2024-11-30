@@ -36,15 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private StatusCode shooter_status = StatusCode.StatusCodeNotInitialized;
 
   private Map<String, Boolean> grid = new HashMap<>() {{
-    put("TL goal", false);
-    put("TC goal", false);
-    put("TR goal", false);
-    put("CL goal", false);
-    put("CC goal", true);
-    put("CR goal", false);
-    put("BL goal", false);
-    put("BC goal", false);
-    put("BR goal", false);
+    put("TOP goal", false); put("MID goal", false); put("BOT goal", true);
   }};
 
   public ShooterSubsystem() {
@@ -67,7 +59,9 @@ public class ShooterSubsystem extends SubsystemBase {
       SmartDashboard.putBoolean(key.getKey(), key.getValue());
     }
 
-    SmartDashboard.putNumber("shooter speed", ShooterConstants.DEFAULT_SHOOTER_SPEED);
+    SmartDashboard.putNumber("TOP shooter speed", ShooterConstants.TOP_SPEED);
+    SmartDashboard.putNumber("MID shooter speed", ShooterConstants.MID_SPEED);
+    SmartDashboard.putNumber("BOT shooter speed", ShooterConstants.BOT_SPEED);
   }
 
   /**
