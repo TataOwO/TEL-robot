@@ -5,8 +5,6 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
-import frc.robot.Constants.StorageConstants.StorageSide;
-import frc.robot.commands.ExtraShootCommand;
 import frc.robot.commands.LoadManagerCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StoreCommand;
@@ -43,8 +41,12 @@ public class RobotContainer {
   private final TransportDirectionSubsystem m_transport_dir_subsystem = new TransportDirectionSubsystem();
 
   // STORAGE
-  private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageSide.LEFT);
-  private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageSide.RIGHT);
+  private final StorageSubsystem m_left_storage_subsystem  = new StorageSubsystem(StorageConstants.StorageSide.LEFT);
+  private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageConstants.StorageSide.RIGHT);
+
+  // LED STRIP
+  private final LedStripSubsystem m_transport_led = new LedStripSubsystem(LedStripConstants.LedSide.TRANSPORT, m_transporter_subsystem);
+  private final LedStripSubsystem m_facy_led      = new LedStripSubsystem(LedStripConstants.LedSide.FANCY,     m_transporter_subsystem);
 
   // ULTRASONICS
   private final PositionGetterSubsystem m_position_getter_subsystem = new PositionGetterSubsystem(gyro, new UltrasonicSubsystem[] {
@@ -81,8 +83,7 @@ public class RobotContainer {
     /******* AUTOMATIC FULL ACTION COMMANDS ********/
 
     // y => shooter
-    m_driverController.y().and(m_driverController.leftTrigger(0.5).negate()).toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
-    m_driverController.y().and(m_driverController.leftTrigger(0.5))         .toggleOnTrue(new ExtraShootCommand(m_shooter_subsystem));
+    m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
 
     // a => load disc
     m_driverController.a().toggleOnTrue(new LoadManagerCommand(m_transporter_subsystem, m_transport_dir_subsystem, m_left_loader_subsystem, m_right_loader_subsystem, m_left_storage_subsystem, m_right_storage_subsystem));
@@ -91,11 +92,6 @@ public class RobotContainer {
     // transport_button.toggleOnTrue(new TransportDirectionCommand(m_transport_dir_subsystem, true));
 
     /******* MANUAL COMMANDS ********/
-
-    // x => transport
-    // m_driverController.x().and(m_driverController.leftTrigger(0.5).negate()).toggleOnTrue(m_transporter_subsystem.transportCommand());
-    // m_driverController.x().and(m_driverController.leftTrigger(0.5))         .toggleOnTrue(m_transporter_subsystem.loadCommand());
-    // m_driverController.x().toggleOnFalse(m_transporter_subsystem.stopTransportCommand());
 
     // pov up/down => right storage
     m_driverController.povUp().onTrue(new StoreCommand(m_right_storage_subsystem, true));
@@ -148,7 +144,7 @@ public class RobotContainer {
     // AimCommand turnLeft  = new AimCommand(m_drive_subsystem, gyro, -90);
     // AimCommand turnRight = new AimCommand(m_drive_subsystem, gyro, +90);
 
-    // drive movement (WIP)
+    // drive movement (ABANDONED)
     // turn left
     // turn right
 

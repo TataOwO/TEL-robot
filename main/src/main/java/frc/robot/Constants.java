@@ -19,8 +19,6 @@ public final class Constants {
     public static final int DRIVER_CONTROLLER_PORT = 0;
 
     public static final int GYRO_PORT = 16;
-
-    public static final int COMPRESSOR_PORT_ID = 1; // TO BE REMOVED
   }
 
   public static class ShooterConstants {
@@ -28,8 +26,8 @@ public final class Constants {
     public static final int SHOOTER_SUPPORT_MOTOR_ID = 1;
 
     public static final double TOP_SPEED = 115;
-    public static final double MID_SPEED = 93;
-    public static final double BOT_SPEED = 70;
+    public static final double MID_SPEED = 91;
+    public static final double BOT_SPEED = 69;
   }
 
   public static class TransporterConstants {
@@ -164,5 +162,34 @@ public final class Constants {
     public static final double POSITION_CLOSED_KI  = 0.0;
     public static final double POSITION_CLOSED_KD  = 0.0;
     public static final double POSITION_CLOSED_KFF = 0.0;
+  }
+
+  public static class LedStripConstants {
+    public static enum LedSide {
+      FANCY     (0, 1, 20),
+      TRANSPORT (2, 3, 20);
+
+      private final int di;
+      private final int bi;
+      private final int led_count;
+
+      LedSide(int di, int bi, int count) {
+        this.di = di;
+        this.bi = bi;
+        this.led_count = count;
+      }
+
+      public int getDi() {
+        return di;
+      }
+
+      public int getBi() {
+        return bi;
+      }
+
+      public int getLedCount() {
+        return led_count;
+      }
+    }
   }
 }
