@@ -7,44 +7,36 @@ import java.util.List;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LedStripConstants.LedSide;;
+import frc.robot.Constants.LedStripConstants;
 
 public class LedStripSubsystem extends SubsystemBase {
-    private final LedSide m_side;
     private final AddressableLED m_light;
-    private final AddressableLED m_backup;
     private final AddressableLEDBuffer m_buffer;
     private final int m_length;
     private final TransporterSubsystem m_transport;
     private final ColorList color_list;
 
-    public LedStripSubsystem(LedSide side, TransporterSubsystem transport) {
-        m_side = side;
+    public LedStripSubsystem(TransporterSubsystem transport) {
         m_transport = transport;
 
-        m_length = m_side.getLedCount();
+        m_length = LedStripConstants.LED_COUNT;
 
         color_list = new ColorList(m_length);
 
         m_buffer = new AddressableLEDBuffer(m_length);
 
-        m_light = new AddressableLED(side.getDi());
+        m_light = new AddressableLED(LedStripConstants.PWM_PIN);
         m_light.setLength(m_length);
         m_light.setData(m_buffer);
 
-        m_backup = new AddressableLED(side.getBi());
-        m_backup.setLength(m_length);
-        m_backup.setData(m_buffer);
-
         m_light.start();
-        m_backup.start();
     }
 
     @Override
     public void periodic() {
         color_list.update();
 
-        if (m_side==LedSide.TRANSPORT && m_transport.getButton()) {
+        if (m_transport.getButton()) {
             for (int i=0; i<m_length; ++i) {
                 m_buffer.setHSV(i, 120, 255, 128);
             }
@@ -57,7 +49,6 @@ public class LedStripSubsystem extends SubsystemBase {
         }
 
         m_light.setData(m_buffer);
-        m_backup.setData(m_buffer);
     }
 
     private class ColorList {
@@ -82,7 +73,7 @@ public class LedStripSubsystem extends SubsystemBase {
             
             setRGB(.1f, tick);
             
-            int spark_length = (int)(length*0.2);
+            int spark_length = 3;
             int offset = spark_length*2;
             int spark_index = (int)(0.02*tick*length);
             float[] CYAN = new float[] {.5f, 1f, 1f};

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
+import frc.robot.commands.ExtraShootCommand;
 import frc.robot.commands.LoadManagerCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.commands.StoreCommand;
@@ -45,8 +46,7 @@ public class RobotContainer {
   private final StorageSubsystem m_right_storage_subsystem = new StorageSubsystem(StorageConstants.StorageSide.RIGHT);
 
   // LED STRIP
-  private final LedStripSubsystem m_transport_led = new LedStripSubsystem(LedStripConstants.LedSide.TRANSPORT, m_transporter_subsystem);
-  private final LedStripSubsystem m_facy_led      = new LedStripSubsystem(LedStripConstants.LedSide.FANCY,     m_transporter_subsystem);
+  private final LedStripSubsystem m_led_strip = new LedStripSubsystem(m_transporter_subsystem);
 
   // ULTRASONICS
   private final PositionGetterSubsystem m_position_getter_subsystem = new PositionGetterSubsystem(gyro, new UltrasonicSubsystem[] {
@@ -83,7 +83,8 @@ public class RobotContainer {
     /******* AUTOMATIC FULL ACTION COMMANDS ********/
 
     // y => shooter
-    m_driverController.y().toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
+    m_driverController.y().and(m_driverController.leftTrigger(50).negate()).toggleOnTrue(new ShootCommand(m_shooter_subsystem, m_transporter_subsystem));
+    m_driverController.y().and(m_driverController.leftTrigger(50))         .toggleOnTrue(new ExtraShootCommand(m_shooter_subsystem));
 
     // a => load disc
     m_driverController.a().toggleOnTrue(new LoadManagerCommand(m_transporter_subsystem, m_transport_dir_subsystem, m_left_loader_subsystem, m_right_loader_subsystem, m_left_storage_subsystem, m_right_storage_subsystem));

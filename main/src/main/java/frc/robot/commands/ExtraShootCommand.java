@@ -4,10 +4,12 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** An example command that uses an example subsystem. */
 public class ExtraShootCommand extends Command {
@@ -34,14 +36,26 @@ public class ExtraShootCommand extends Command {
     timer.reset();
     timer.start();
 
-    shooter_speed = 69;
+    boolean top    = SmartDashboard.getBoolean("TOP goal", false);
+    boolean center = SmartDashboard.getBoolean("MID goal", false);
+    boolean bottom = SmartDashboard.getBoolean("BOT goal", false);
+
+    if (top) {
+      shooter_speed = SmartDashboard.getNumber("TOP shooter speed", ShooterConstants.TOP_SPEED);
+    }
+    if (center) {
+      shooter_speed = SmartDashboard.getNumber("MID shooter speed", ShooterConstants.TOP_SPEED);
+    }
+    if (bottom) {
+      shooter_speed = SmartDashboard.getNumber("BOT shooter speed", ShooterConstants.TOP_SPEED);
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     current_time = timer.get();
-    double support_speed = 1;
+    double support_speed = Math.min(shooter_speed*0.02+0.2, 1.0);
 
     // shooter 120 RPS (this will depend on the distance)
     // transport 0.4/1

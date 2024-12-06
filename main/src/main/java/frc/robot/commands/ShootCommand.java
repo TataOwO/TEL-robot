@@ -22,8 +22,6 @@ public class ShootCommand extends Command {
 
   private double shooter_speed = 0;
 
-  private boolean is_first_shoot = true;
-
   /**
    * Creates a new ExampleCommand.
    *
@@ -39,13 +37,6 @@ public class ShootCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (is_first_shoot) {
-      (new ExtraShootCommand(shooter_subsystem)).schedule();
-
-      is_first_shoot = false;
-      return;
-    }
-
     timer.reset();
     timer.start();
 

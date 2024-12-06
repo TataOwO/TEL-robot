@@ -165,31 +165,7 @@ public final class Constants {
   }
 
   public static class LedStripConstants {
-    public static enum LedSide {
-      FANCY     (0, 1, 20),
-      TRANSPORT (2, 3, 20);
-
-      private final int di;
-      private final int bi;
-      private final int led_count;
-
-      LedSide(int di, int bi, int count) {
-        this.di = di;
-        this.bi = bi;
-        this.led_count = count;
-      }
-
-      public int getDi() {
-        return di;
-      }
-
-      public int getBi() {
-        return bi;
-      }
-
-      public int getLedCount() {
-        return led_count;
-      }
-    }
+    public static final int PWM_PIN = 0;
+    public static final int LED_COUNT = 12;
   }
 }
